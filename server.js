@@ -21,47 +21,83 @@ if (!fs.existsSync(downloadsDir)) {
 // Instagram cookies file path (populated by the Chrome extension via /api/save-cookies)
 const instagramCookiesPath = path.join(__dirname, 'instagram_cookies.txt');
 
-// Pinterest image pin scraper — fetches page and extracts highest-quality image URL
+// Pinterest image pin scraper — two-stage: OEmbed API first, then Googlebot HTML scrape
 function getPinterestImage(pinUrl) {
   return new Promise((resolve, reject) => {
     const https = require('https');
-    const reqUrl = pinUrl.replace('http://', 'https://');
-    const options = {
+
+    // Stage 1: Pinterest OEmbed API (public, no auth, returns JSON even when Chrome is running)
+    const oembedUrl = 'https://www.pinterest.com/oembed/?url=' + encodeURIComponent(pinUrl);
+    https.get(oembedUrl, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
-        'Accept-Language': 'en-US,en;q=0.9'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+        'Accept': 'application/json'
       }
-    };
-    https.get(reqUrl, options, (res) => {
-      // Follow redirects
+    }, (oembedRes) => {
+      if (oembedRes.statusCode >= 300 && oembedRes.statusCode < 400 && oembedRes.headers.location) {
+        return getPinterestImage(oembedRes.headers.location).then(resolve).catch(reject);
+      }
+      let oembedData = '';
+      oembedRes.on('data', chunk => { oembedData += chunk; });
+      oembedRes.on('end', () => {
+        try {
+          const json = JSON.parse(oembedData);
+          const rawUrl = json.thumbnail_url || json.url || '';
+          if (rawUrl && rawUrl.includes('pinimg.com')) {
+            // Upgrade from 236x/564x/736x thumbnail to originals
+            const imgUrl = rawUrl.replace(/\/\d+x\//, '/originals/').replace(/&amp;/g, '&');
+            console.log(`Pinterest OEmbed resolved: ${imgUrl}`);
+            return resolve(imgUrl);
+          }
+        } catch (e) { /* OEmbed failed, try HTML fallback */ }
+
+        // Stage 2: Fetch HTML as Googlebot (Pinterest renders full content for crawlers)
+        scrapePinterestHTML(pinUrl).then(resolve).catch(reject);
+      });
+    }).on('error', () => {
+      scrapePinterestHTML(pinUrl).then(resolve).catch(reject);
+    });
+  });
+}
+
+function scrapePinterestHTML(pinUrl) {
+  return new Promise((resolve, reject) => {
+    const https = require('https');
+    https.get(pinUrl, {
+      headers: {
+        // Googlebot UA — Pinterest serves full static HTML to crawlers
+        'User-Agent': 'Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept': 'text/html'
+      }
+    }, (res) => {
       if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-        return getPinterestImage(res.headers.location).then(resolve).catch(reject);
+        return scrapePinterestHTML(res.headers.location).then(resolve).catch(reject);
       }
       let html = '';
       res.on('data', chunk => { html += chunk; });
       res.on('end', () => {
-        // Try og:image meta tag
+        // Look for i.pinimg.com URL directly in page source (most reliable)
+        const pinimgMatch = html.match(/https:\/\/i\.pinimg\.com\/(?:originals|\d+x)\/[a-f0-9/]+\.[a-z]+/i);
+        if (pinimgMatch) {
+          const imgUrl = pinimgMatch[0].replace(/\/\d+x\//, '/originals/');
+          console.log(`Pinterest HTML scrape resolved: ${imgUrl}`);
+          return resolve(imgUrl);
+        }
+        // Fallback: og:image meta tag
         const ogMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
                      || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
         if (ogMatch) {
-          let imgUrl = ogMatch[1];
-          // Pinterest URL structure: upgrade from 736x or other sizes to originals
-          imgUrl = imgUrl.replace(/\/\d+x\//, '/originals/');
-          // Decode HTML entities
-          imgUrl = imgUrl.replace(/&amp;/g, '&');
+          const imgUrl = ogMatch[1].replace(/\/\d+x\//, '/originals/').replace(/&amp;/g, '&');
+          console.log(`Pinterest og:image resolved: ${imgUrl}`);
           return resolve(imgUrl);
         }
-        // Try twitter:image
-        const twMatch = html.match(/<meta[^>]+name=["']twitter:image:src["'][^>]+content=["']([^"']+)["']/i);
-        if (twMatch) {
-          let imgUrl = twMatch[1].replace(/\/\d+x\//, '/originals/');
-          return resolve(imgUrl);
-        }
-        reject(new Error('Could not find image URL in Pinterest page'));
+        reject(new Error('Could not extract image URL from Pinterest. The pin may be private or require login.'));
       });
     }).on('error', reject);
   });
 }
+
 
 // In-memory tasks database
 const tasks = new Map();
