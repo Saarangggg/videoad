@@ -2,7 +2,9 @@
   // Avoid injecting inside iframes
   if (window.self !== window.top) return;
 
-  let lastDetectedUrl = '';
+  let lastShownUrl = '';
+  let pendingUrl = '';
+  let pendingTimeout = null;
   let mediaInterval = null;
 
   function checkForMedia() {
@@ -46,18 +48,32 @@
                             hasVideo || 
                             hasAudio;
 
-        if (isMediaPage && currentUrl !== lastDetectedUrl) {
-          // Avoid running on local web client page
-          if (currentUrl.includes('localhost:48774') || currentUrl.includes('127.0.0.1:48774')) return;
+        if (isMediaPage) {
+          // If the URL changed from the last shown URL AND it's not already pending
+          if (currentUrl !== lastShownUrl && currentUrl !== pendingUrl) {
+            pendingUrl = currentUrl;
+            if (pendingTimeout) clearTimeout(pendingTimeout);
+            
+            // Wait 2 seconds for SPA layout transition and title update
+            pendingTimeout = setTimeout(() => {
+              // Double check we are still on that same URL
+              if (window.location.href === pendingUrl) {
+                let cleanTitle = document.title || 'Detected Media';
+                cleanTitle = cleanTitle.replace(/^\(\d+\)\s+/, ''); // Remove notification counts like (1)
+                cleanTitle = cleanTitle.replace(/\s*-\s*YouTube$/, '');
 
-          lastDetectedUrl = currentUrl;
-          
-          // Use clean title (strip trailing YouTube site names)
-          let cleanTitle = document.title || 'Detected Media';
-          cleanTitle = cleanTitle.replace(/^\(\d+\)\s+/, ''); // Remove notification counts like (1)
-          cleanTitle = cleanTitle.replace(/\s*-\s*YouTube$/, '');
-
-          showOnScreenToast(cleanTitle, currentUrl);
+                showOnScreenToast(cleanTitle, pendingUrl);
+                lastShownUrl = pendingUrl;
+              }
+              pendingUrl = '';
+            }, 2000);
+          }
+        } else {
+          // If we navigated away from a media page, clear and hide any toast
+          const existing = document.getElementById('videoad-onscreen-toast');
+          if (existing) existing.remove();
+          lastShownUrl = '';
+          pendingUrl = '';
         }
       });
     } catch (e) {
