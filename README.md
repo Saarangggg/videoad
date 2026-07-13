@@ -29,7 +29,7 @@ We provide a single-click helper script to install dependencies, register protoc
    cd videoad
    ```
 2. Double-click the file named **`setup_and_run.bat`** in the root directory.
-3. The script will install Node modules, configure Registry parameters under `HKEY_CURRENT_USER`, and launch the web server at `http://localhost:48774/`.
+3. The script will automatically scan for and download the required standalone binaries (`yt-dlp.exe` and `ffmpeg.exe`), install the Node modules, configure the Windows background registry protocol parameters (`videoad://`), and launch the web downloader panel at `http://localhost:48774/`.
 
 ---
 

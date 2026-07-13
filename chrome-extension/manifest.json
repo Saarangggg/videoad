@@ -33,6 +33,10 @@
         "http://*/*",
         "https://*/*"
       ],
+      "exclude_matches": [
+        "http://localhost:48774/*",
+        "http://127.0.0.1:48774/*"
+      ],
       "js": ["detector.js"],
       "css": ["detector.css"]
     }
