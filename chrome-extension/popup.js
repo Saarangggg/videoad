@@ -237,56 +237,60 @@ document.addEventListener('DOMContentLoaded', () => {
         const url = tab.url;
         const title = tab.title;
 
-        // Verify if it's a web page, and not our own local config server
         const isWebPage = url.startsWith('http://') || url.startsWith('https://');
         const isSelfPage = url.includes('localhost:48774') || url.includes('127.0.0.1:48774');
 
         if (isWebPage && !isSelfPage) {
           const detectCard = document.getElementById('detect-card');
           const detectTitle = document.getElementById('detect-title');
-          
+
           if (detectTitle) detectTitle.textContent = title;
           if (detectCard) detectCard.style.display = 'block';
 
           const downloadVideoBtn = document.getElementById('detect-download-video');
           const downloadAudioBtn = document.getElementById('detect-download-audio');
+          const downloadImageBtn = document.getElementById('detect-download-image');
 
-          // Bind download triggers
+          // Determine if this is an image-only page
+          const isImageOnlyPage =
+            url.includes('pinterest.com/pin/') ||
+            url.includes('pin.it/') ||
+            url.includes('instagram.com/p/') ||
+            /\.(jpe?g|png|webp|gif|bmp)(\?.*)?$/i.test(url);
+
+          // Show/hide buttons based on media type
+          if (downloadVideoBtn) downloadVideoBtn.style.display = isImageOnlyPage ? 'none' : '';
+          if (downloadAudioBtn) downloadAudioBtn.style.display = isImageOnlyPage ? 'none' : '';
+          if (downloadImageBtn) downloadImageBtn.style.display = isImageOnlyPage ? '' : 'none';
+
+          // Bind download triggers (once)
           if (downloadVideoBtn && !downloadVideoBtn.dataset.bound) {
             downloadVideoBtn.dataset.bound = 'true';
             downloadVideoBtn.addEventListener('click', () => {
-              chrome.runtime.sendMessage({
-                action: 'triggerDownload',
-                url: url,
-                title: title,
-                type: 'video'
-              });
-              // Visual feedback
+              chrome.runtime.sendMessage({ action: 'triggerDownload', url, title, type: 'video' });
               downloadVideoBtn.textContent = 'Triggered!';
               downloadVideoBtn.disabled = true;
-              setTimeout(() => {
-                downloadVideoBtn.textContent = 'Download Video';
-                downloadVideoBtn.disabled = false;
-              }, 2000);
+              setTimeout(() => { downloadVideoBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M23 7l-7 5 7 5V7z"></path><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg> Download Video'; downloadVideoBtn.disabled = false; }, 2000);
             });
           }
 
           if (downloadAudioBtn && !downloadAudioBtn.dataset.bound) {
             downloadAudioBtn.dataset.bound = 'true';
             downloadAudioBtn.addEventListener('click', () => {
-              chrome.runtime.sendMessage({
-                action: 'triggerDownload',
-                url: url,
-                title: title,
-                type: 'audio'
-              });
-              // Visual feedback
+              chrome.runtime.sendMessage({ action: 'triggerDownload', url, title, type: 'audio' });
               downloadAudioBtn.textContent = 'Triggered!';
               downloadAudioBtn.disabled = true;
-              setTimeout(() => {
-                downloadAudioBtn.textContent = 'Download Audio';
-                downloadAudioBtn.disabled = false;
-              }, 2000);
+              setTimeout(() => { downloadAudioBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M9 18V5l12-2v13"></path><circle cx="6" cy="18" r="3"></circle><circle cx="18" cy="16" r="3"></circle></svg> Download Audio'; downloadAudioBtn.disabled = false; }, 2000);
+            });
+          }
+
+          if (downloadImageBtn && !downloadImageBtn.dataset.bound) {
+            downloadImageBtn.dataset.bound = 'true';
+            downloadImageBtn.addEventListener('click', () => {
+              chrome.runtime.sendMessage({ action: 'triggerDownload', url, title, type: 'image' });
+              downloadImageBtn.textContent = 'Triggered!';
+              downloadImageBtn.disabled = true;
+              setTimeout(() => { downloadImageBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg> Download Image'; downloadImageBtn.disabled = false; }, 2000);
             });
           }
         } else {
