@@ -21,6 +21,48 @@ if (!fs.existsSync(downloadsDir)) {
 // Instagram cookies file path (populated by the Chrome extension via /api/save-cookies)
 const instagramCookiesPath = path.join(__dirname, 'instagram_cookies.txt');
 
+// Pinterest image pin scraper — fetches page and extracts highest-quality image URL
+function getPinterestImage(pinUrl) {
+  return new Promise((resolve, reject) => {
+    const https = require('https');
+    const reqUrl = pinUrl.replace('http://', 'https://');
+    const options = {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Safari/537.36',
+        'Accept-Language': 'en-US,en;q=0.9'
+      }
+    };
+    https.get(reqUrl, options, (res) => {
+      // Follow redirects
+      if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+        return getPinterestImage(res.headers.location).then(resolve).catch(reject);
+      }
+      let html = '';
+      res.on('data', chunk => { html += chunk; });
+      res.on('end', () => {
+        // Try og:image meta tag
+        const ogMatch = html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)
+                     || html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i);
+        if (ogMatch) {
+          let imgUrl = ogMatch[1];
+          // Pinterest URL structure: upgrade from 736x or other sizes to originals
+          imgUrl = imgUrl.replace(/\/\d+x\//, '/originals/');
+          // Decode HTML entities
+          imgUrl = imgUrl.replace(/&amp;/g, '&');
+          return resolve(imgUrl);
+        }
+        // Try twitter:image
+        const twMatch = html.match(/<meta[^>]+name=["']twitter:image:src["'][^>]+content=["']([^"']+)["']/i);
+        if (twMatch) {
+          let imgUrl = twMatch[1].replace(/\/\d+x\//, '/originals/');
+          return resolve(imgUrl);
+        }
+        reject(new Error('Could not find image URL in Pinterest page'));
+      });
+    }).on('error', reject);
+  });
+}
+
 // In-memory tasks database
 const tasks = new Map();
 
@@ -145,6 +187,27 @@ app.post('/api/info', async (req, res) => {
   process.on('close', (code) => {
     if (code !== 0) {
       console.error(`yt-dlp info extraction failed with code ${code}. Stderr: ${stderr}`);
+      // Pinterest image pin fallback — yt-dlp fails on image-only pins
+      if ((url.includes('pinterest.com') || url.includes('pin.it')) && stderr.includes('No video formats found')) {
+        console.log('Pinterest image pin detected — falling back to og:image scraper...');
+        return getPinterestImage(url).then(imageUrl => {
+          res.json({
+            id: url.split('/').filter(Boolean).pop(),
+            title: 'Pinterest Image',
+            thumbnail: imageUrl,
+            duration: null,
+            duration_raw: 0,
+            uploader: 'Pinterest',
+            type: 'image',
+            extractor: 'pinterest',
+            original_url: url,
+            resolutions: [],
+            direct_image_url: imageUrl
+          });
+        }).catch(() => {
+          return res.status(500).json({ error: 'Pinterest image could not be extracted. The pin may be private.' });
+        });
+      }
       let userFriendlyError = 'Failed to extract video information.';
       if (stderr.includes('Unsupported URL') || stderr.includes('not a valid URL')) {
         userFriendlyError = 'Unsupported platform or invalid URL. Please check the link.';
@@ -239,6 +302,38 @@ app.post('/api/download', (req, res) => {
   };
 
   tasks.set(taskId, task);
+
+  // Pinterest image pin: scrape og:image and download directly (yt-dlp can't handle image-only pins)
+  if ((url.includes('pinterest.com') || url.includes('pin.it')) && type === 'image') {
+    task.status = 'downloading';
+    task.logs.push('Fetching Pinterest image (highest quality)...');
+    broadcastProgress(taskId);
+    getPinterestImage(url).then(imageUrl => {
+      const ext = (imageUrl.match(/\.(jpe?g|png|webp|gif)(\?|$)/i) || ['', 'jpg'])[1].replace('jpeg', 'jpg');
+      const outPath = path.join(downloadsDir, `${taskId}.${ext}`);
+      const https = require('https');
+      const fileStream = fs.createWriteStream(outPath);
+      https.get(imageUrl, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (imgRes) => {
+        imgRes.pipe(fileStream);
+        fileStream.on('finish', () => {
+          task.status = 'completed';
+          task.progress = 100;
+          task.filename = `${taskId}.${ext}`;
+          task.logs.push('Pinterest image downloaded successfully.');
+          broadcastProgress(taskId, true);
+        });
+      }).on('error', (err) => {
+        task.status = 'failed';
+        task.logs.push(`Image fetch error: ${err.message}`);
+        broadcastProgress(taskId, true);
+      });
+    }).catch(err => {
+      task.status = 'failed';
+      task.logs.push(`Pinterest scrape failed: ${err.message}`);
+      broadcastProgress(taskId, true);
+    });
+    return res.json({ taskId });
+  }
 
   const isInstagram = url.includes('instagram.com');
 
