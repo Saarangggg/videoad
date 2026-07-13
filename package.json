@@ -1,0 +1,25 @@
+{
+  "name": "videoad-downloader",
+  "version": "1.0.0",
+  "description": "Premium Black & Red themed downloader for YouTube and Instagram posts using yt-dlp.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "downloader",
+    "youtube",
+    "instagram",
+    "yt-dlp",
+    "video",
+    "audio"
+  ],
+  "author": "Antigravity",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "uuid": "^9.0.1"
+  }
+}

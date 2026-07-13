@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>VideoAd Helper</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-dark: #08080a;
+      --bg-card: rgba(18, 18, 22, 0.9);
+      --primary: #ff0f0f;
+      --primary-hover: #d10000;
+      --primary-glow: rgba(255, 15, 15, 0.35);
+      --text: #ffffff;
+      --text-muted: #8e8e93;
+      --border: rgba(255, 15, 15, 0.15);
+      --success: #34c759;
+      --error: #ff453a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      width: 320px;
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text);
+      padding: 16px;
+      overflow-x: hidden;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 12px;
+    }
+
+    .logo {
+      font-family: 'Space Grotesk', sans-serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 1px;
+    }
+
+    .logo-red {
+      color: var(--primary);
+    }
+
+    .status-container {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      background: var(--bg-card);
+      padding: 4px 8px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background-color: var(--text-muted);
+      box-shadow: 0 0 4px var(--text-muted);
+    }
+
+    .status-dot.connected {
+      background-color: var(--success);
+      box-shadow: 0 0 6px var(--success);
+    }
+
+    .status-dot.offline {
+      background-color: var(--error);
+      box-shadow: 0 0 6px var(--error);
+    }
+
+    .control-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 16px;
+      border: 1px solid var(--border);
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    .control-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .control-label h3 {
+      font-size: 0.95rem;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+
+    .control-label p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+
+    /* Premium Toggle Switch */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 50px;
+      height: 26px;
+    }
+
+    .switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #2c2c35;
+      transition: .3s;
+      border-radius: 34px;
+      border: 1px solid var(--border);
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .slider {
+      background-color: var(--primary);
+      box-shadow: 0 0 8px var(--primary-glow);
+      border-color: var(--primary);
+    }
+
+    input:checked + .slider:before {
+      transform: translateX(24px);
+    }
+
+    .downloads-section h4 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 10px;
+    }
+
+    .downloads-list {
+      max-height: 180px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .download-item {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      font-size: 0.8rem;
+    }
+
+    .dl-header {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      gap: 10px;
+    }
+
+    .dl-title {
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+
+    .dl-status {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    .dl-progress-bar {
+      height: 4px;
+      background: #22222a;
+      border-radius: 2px;
+      overflow: hidden;
+      margin-bottom: 6px;
+    }
+
+    .dl-progress-fill {
+      height: 100%;
+      background: var(--primary);
+      box-shadow: 0 0 6px var(--primary);
+      width: 0%;
+      transition: width 0.3s ease;
+    }
+
+    .dl-meta {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .empty-state {
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      padding: 20px 0;
+      background: var(--bg-card);
+      border-radius: 8px;
+      border: 1px dashed var(--border);
+    }
+
+    /* Custom Scrollbar */
+    .downloads-list::-webkit-scrollbar {
+      width: 4px;
+    }
+    .downloads-list::-webkit-scrollbar-track {
+      background: var(--bg-dark);
+    }
+    .downloads-list::-webkit-scrollbar-thumb {
+      background: var(--border);
+      border-radius: 2px;
+    }
+    .settings-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .settings-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text);
+    }
+
+    .settings-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Offline Panel */
+    .offline-panel {
+      text-align: center;
+      padding: 30px 20px;
+      background: var(--bg-card);
+      border-radius: 12px;
+      border: 1px dashed var(--border);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    }
+
+    .offline-icon-container {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 16px;
+    }
+
+    .offline-icon {
+      width: 48px;
+      height: 48px;
+      color: var(--text-muted);
+    }
+
+    .offline-badge {
+      position: absolute;
+      bottom: -4px;
+      right: -8px;
+      background: var(--error);
+      color: #ffffff;
+      font-size: 0.6rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      padding: 2px 6px;
+      border-radius: 10px;
+      box-shadow: 0 0 6px var(--error);
+    }
+
+    .offline-panel h3 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 6px;
+      font-family: 'Space Grotesk', sans-serif;
+    }
+
+    .offline-panel p {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+    }
+
+    .start-btn {
+      background: linear-gradient(135deg, var(--primary) 0%, #ad0202 100%);
+      color: #ffffff;
+      border: none;
+      border-radius: 8px;
+      padding: 10px 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 10px var(--primary-glow);
+    }
+
+    .start-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px var(--primary-glow);
+    }
+
+    .start-btn svg {
+      fill: currentColor;
+    }
+
+    /* Settings Panel */
+    .settings-panel {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .settings-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .settings-header h3 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 1rem;
+      font-weight: 700;
+    }
+
+    .back-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.75rem;
+      font-weight: 500;
+      padding: 4px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--primary);
+    }
+
+    .open-page-btn {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-size: 0.8rem;
+      font-weight: 600;
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+    }
+
+    .open-page-btn:hover {
+      background: rgba(255, 15, 15, 0.05);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
+    /* Options Group Checkboxes */
+    .options-group {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease;
+    }
+
+    .options-group.disabled {
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .option-row {
+      display: flex;
+      align-items: center;
+      text-align: left;
+    }
+
+    .option-label {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      width: 100%;
+      user-select: none;
+    }
+
+    .option-label input[type="checkbox"] {
+      accent-color: var(--primary);
+      width: 14px;
+      height: 14px;
+      cursor: pointer;
+    }
+
+    /* Detect Card */
+    .detect-card {
+      background: linear-gradient(135deg, rgba(255, 15, 15, 0.08) 0%, rgba(18, 18, 22, 0.9) 100%);
+      border: 1px solid rgba(255, 15, 15, 0.20);
+      border-radius: 12px;
+      padding: 14px;
+      margin-bottom: 16px;
+      text-align: left;
+      box-shadow: 0 4px 14px rgba(255, 15, 15, 0.1);
+      display: none; /* Hidden by default until detected */
+    }
+
+    .detect-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--primary);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+
+    .detect-pulse {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--primary);
+      box-shadow: 0 0 6px var(--primary);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.6; }
+      50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 10px var(--primary); }
+      100% { transform: scale(0.9); opacity: 0.6; }
+    }
+
+    .detect-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 12px;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--text);
+    }
+
+    .detect-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .detect-btn {
+      flex: 1;
+      border: none;
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      color: #ffffff;
+    }
+
+    .detect-btn.video {
+      background: var(--primary);
+    }
+
+    .detect-btn.video:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 0 8px var(--primary-glow);
+    }
+
+    .detect-btn.audio {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--border);
+    }
+
+    .detect-btn.audio:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="logo">
+      <span class="logo-red">VIDEO</span>AD
+    </div>
+    <button class="settings-btn" id="settings-btn" title="Open Settings">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="3"></circle>
+        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06-.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06-.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+      </svg>
+    </button>
+  </header>
+
+  <div id="main-content">
+    <div id="detect-card" class="detect-card">
+      <div class="detect-header">
+        <div class="detect-pulse"></div>
+        <span>Active Media Detected</span>
+      </div>
+      <div class="detect-title" id="detect-title">Loading Active Media...</div>
+      <div class="detect-actions">
+        <button class="detect-btn video" id="detect-download-video">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <path d="M23 7l-7 5 7 5V7z"></path>
+            <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+          </svg>
+          Download Video
+        </button>
+        <button class="detect-btn audio" id="detect-download-audio">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+            <path d="M9 18V5l12-2v13"></path>
+            <circle cx="6" cy="18" r="3"></circle>
+            <circle cx="18" cy="16" r="3"></circle>
+          </svg>
+          Download Audio
+        </button>
+      </div>
+    </div>
+
+    <div class="downloads-section">
+      <h4>Active Downloads</h4>
+      <div id="downloads-container" class="downloads-list">
+        <div class="empty-state" id="empty-state">
+          No active downloads right now
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="settings-panel" class="settings-panel" style="display: none;">
+    <div class="settings-header">
+      <button class="back-btn" id="back-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12">
+          <line x1="19" y1="12" x2="5" y2="12"></line>
+          <polyline points="12 19 5 12 12 5"></polyline>
+        </svg>
+        Back
+      </button>
+      <h3>Settings</h3>
+    </div>
+    <div class="control-card">
+      <div class="control-row">
+        <div class="control-label">
+          <h3>Right-click Helper</h3>
+          <p id="extension-status-desc">Turn on context menu helper</p>
+        </div>
+        <label class="switch">
+          <input type="checkbox" id="toggle-extension">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+    
+    <div class="options-group" id="options-group">
+      <div class="option-row">
+        <label class="option-label">
+          <input type="checkbox" id="detect-video" checked>
+          <span>Detect Videos</span>
+        </label>
+      </div>
+      <div class="option-row">
+        <label class="option-label">
+          <input type="checkbox" id="detect-audio" checked>
+          <span>Detect Audio</span>
+        </label>
+      </div>
+      <div class="option-row">
+        <label class="option-label">
+          <input type="checkbox" id="detect-image" checked>
+          <span>Detect Images</span>
+        </label>
+      </div>
+      <div class="option-row">
+        <label class="option-label">
+          <input type="checkbox" id="detect-link" checked>
+          <span>Detect Page Links</span>
+        </label>
+      </div>
+      <div class="option-row">
+        <label class="option-label">
+          <input type="checkbox" id="detect-page" checked>
+          <span>Detect Whole Pages</span>
+        </label>
+      </div>
+    </div>
+
+    <a class="open-page-btn" href="http://localhost:48774/" target="_blank">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14">
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+        <polyline points="15 3 21 3 21 9"></polyline>
+        <line x1="10" y1="14" x2="21" y2="3"></line>
+      </svg>
+      Open Downloader Page
+    </a>
+  </div>
+
+  <div id="offline-panel" class="offline-panel" style="display: none;">
+    <div class="offline-icon-container">
+      <svg class="offline-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
+        <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
+        <line x1="6" y1="6" x2="6.01" y2="6"></line>
+        <line x1="6" y1="18" x2="6.01" y2="18"></line>
+      </svg>
+      <div class="offline-badge">Offline</div>
+    </div>
+    <h3>Server is Offline</h3>
+    <p>The download engine is not running on port 48774.</p>
+    <button class="start-btn" id="start-server-btn">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+        <path d="M5 3l14 9-14 9V3z"></path>
+      </svg>
+      Start Server
+    </button>
+  </div>
+
+  <script src="popup.js"></script>
+</body>
+</html>

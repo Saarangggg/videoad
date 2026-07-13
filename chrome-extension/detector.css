@@ -1,0 +1,123 @@
+#videoad-onscreen-toast {
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  width: 300px;
+  background: #08080a !important;
+  border: 1px solid rgba(255, 15, 15, 0.25) !important;
+  border-radius: 12px !important;
+  padding: 14px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.6), 0 0 16px rgba(255, 15, 15, 0.15) !important;
+  z-index: 9999999999 !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important;
+  color: #ffffff !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  animation: va-slide-in 0.3s ease-out !important;
+}
+
+@keyframes va-slide-in {
+  from { transform: translateY(100px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.va-toast-header {
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+  font-size: 0.72rem !important;
+  font-weight: 700 !important;
+  color: #ff0f0f !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  margin-bottom: 8px !important;
+  position: relative !important;
+  line-height: 1 !important;
+}
+
+.va-toast-pulse {
+  width: 6px !important;
+  height: 6px !important;
+  border-radius: 50% !important;
+  background: #ff0f0f !important;
+  box-shadow: 0 0 6px #ff0f0f !important;
+  animation: va-pulse 1.5s infinite !important;
+}
+
+@keyframes va-pulse {
+  0% { transform: scale(0.9); opacity: 0.6; }
+  50% { transform: scale(1.2); opacity: 1; box-shadow: 0 0 10px #ff0f0f; }
+  100% { transform: scale(0.9); opacity: 0.6; }
+}
+
+.va-toast-header-title {
+  flex: 1 !important;
+  text-align: left !important;
+}
+
+.va-toast-close {
+  background: transparent !important;
+  border: none !important;
+  color: #8e8e93 !important;
+  font-size: 1.2rem !important;
+  cursor: pointer !important;
+  line-height: 1 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  transition: color 0.2s ease !important;
+}
+
+.va-toast-close:hover {
+  color: #ff0f0f !important;
+}
+
+.va-toast-body {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+}
+
+.va-toast-title {
+  font-size: 0.82rem !important;
+  font-weight: 600 !important;
+  line-height: 1.4 !important;
+  color: #ffffff !important;
+  text-align: left !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  word-break: break-word !important;
+}
+
+.va-toast-actions {
+  display: flex !important;
+  gap: 8px !important;
+}
+
+.va-toast-btn {
+  flex: 1 !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 8px 10px !important;
+  font-size: 0.78rem !important;
+  font-weight: 600 !important;
+  cursor: pointer !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 6px !important;
+  transition: all 0.2s ease !important;
+  color: #ffffff !important;
+  box-sizing: border-box !important;
+}
+
+.va-toast-btn.view-more {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+.va-toast-btn.view-more:hover {
+  background: rgba(255, 255, 255, 0.12) !important;
+  border-color: #8e8e93 !important;
+}

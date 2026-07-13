@@ -1,0 +1,46 @@
+{
+  "manifest_version": 3,
+  "name": "VideoAd Video Downloader Helper",
+  "version": "1.0",
+  "description": "Right-click any video to download it instantly via the local VideoAd Downloader server.",
+  "permissions": [
+    "contextMenus",
+    "storage",
+    "notifications",
+    "downloads",
+    "activeTab"
+  ],
+  "host_permissions": [
+    "http://localhost:48774/*",
+    "http://127.0.0.1:48774/*",
+    "http://*/*",
+    "https://*/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://localhost:48774/*",
+        "http://127.0.0.1:48774/*"
+      ],
+      "js": ["content.js"]
+    },
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "js": ["detector.js"],
+      "css": ["detector.css"]
+    }
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "icons": {
+    "128": "icon.png"
+  }
+}
