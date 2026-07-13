@@ -73,9 +73,10 @@ app.post('/api/info', async (req, res) => {
     '--dump-json'
   ];
 
-  // Pass Chrome browser cookies for Instagram (requires login)
+  // Instagram requires Chrome session cookies + GraphQL API
   if (isInstagram) {
     args.push('--cookies-from-browser', 'chrome');
+    args.push('--extractor-args', 'instagram:api=graphql');
   }
 
   args.push(url);
@@ -103,6 +104,8 @@ app.post('/api/info', async (req, res) => {
         userFriendlyError = 'This video or post is private/restricted. Login required.';
       } else if (stderr.includes('CORS') || stderr.includes('HTTP Error 403')) {
         userFriendlyError = 'Access denied by the content provider (HTTP 403 Forbidden).';
+      } else if (stderr.includes('empty media response') || stderr.includes('Instagram')) {
+        userFriendlyError = 'Instagram requires you to be logged in. Make sure you are logged into Instagram in Chrome, then try again.';
       }
       return res.status(500).json({ error: userFriendlyError, raw: stderr });
     }
@@ -199,9 +202,10 @@ app.post('/api/download', (req, res) => {
     '--newline', // Output progress on new lines
   ];
 
-  // Pass Chrome browser cookies for Instagram (requires login)
+  // Instagram requires Chrome session cookies + GraphQL API
   if (isInstagram) {
     args.push('--cookies-from-browser', 'chrome');
+    args.push('--extractor-args', 'instagram:api=graphql');
   }
 
   if (type === 'audio') {
