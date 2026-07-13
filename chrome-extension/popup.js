@@ -66,7 +66,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function updateExtensionStatusText(isActive) {
     if (statusDesc) {
-      statusDesc.textContent = isActive ? 'Service is ACTIVE (Context menu registered)' : 'Service is INACTIVE (Click to start)';
+      statusDesc.textContent = isActive ? 'Active — context menu enabled' : 'Inactive — click to start';
     }
   }
 

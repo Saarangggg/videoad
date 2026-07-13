@@ -97,7 +97,13 @@
     .control-row {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .control-label {
+      flex: 1;
+      min-width: 0;
     }
 
     .control-label h3 {
@@ -117,6 +123,8 @@
       display: inline-block;
       width: 50px;
       height: 26px;
+      flex-shrink: 0;
+      margin-top: 2px;
     }
 
     .switch input {
@@ -686,7 +694,7 @@
       <div class="control-row">
         <div class="control-label">
           <h3>Right-click Helper</h3>
-          <p id="extension-status-desc">Turn on context menu helper</p>
+          <p id="extension-status-desc">Inactive — click to start</p>
         </div>
         <label class="switch">
           <input type="checkbox" id="toggle-extension">
