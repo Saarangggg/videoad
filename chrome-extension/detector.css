@@ -130,3 +130,12 @@
   background: rgba(255, 255, 255, 0.12) !important;
   border-color: #8e8e93 !important;
 }
+
+.va-toast-btn.download-image {
+  background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045) !important;
+}
+
+.va-toast-btn.download-image:hover {
+  opacity: 0.85 !important;
+  box-shadow: 0 0 8px rgba(131, 58, 180, 0.4) !important;
+}

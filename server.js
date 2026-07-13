@@ -280,8 +280,39 @@ app.post('/api/download', (req, res) => {
       '--merge-output-format', 'mp4',
       '-o', path.join(downloadsDir, `${taskId}.%(ext)s`)
     );
+  } else if (type === 'image') {
+    // Check if URL is a direct image file
+    const directImageMatch = url.match(/\.(jpe?g|png|webp|gif|bmp|tiff?)(\?.*)?$/i);
+    if (directImageMatch) {
+      // Direct HTTP download — no yt-dlp needed
+      const ext = directImageMatch[1].toLowerCase().replace('jpeg', 'jpg');
+      const outPath = path.join(downloadsDir, `${taskId}.${ext}`);
+      task.status = 'downloading';
+      task.logs.push('Fetching image directly...');
+      broadcastProgress(taskId);
+      const https = url.startsWith('https') ? require('https') : require('http');
+      const fileStream = fs.createWriteStream(outPath);
+      https.get(url, { headers: { 'User-Agent': 'Mozilla/5.0' } }, (imgRes) => {
+        imgRes.pipe(fileStream);
+        fileStream.on('finish', () => {
+          task.status = 'completed';
+          task.progress = 100;
+          task.filename = `${taskId}.${ext}`;
+          task.logs.push('Image downloaded successfully.');
+          broadcastProgress(taskId, true);
+        });
+      }).on('error', (err) => {
+        task.status = 'failed';
+        task.logs.push(`Image download error: ${err.message}`);
+        broadcastProgress(taskId, true);
+      });
+      return res.json({ taskId });
+    } else {
+      // Platform image (Instagram post, Twitter image etc) — yt-dlp handles it
+      args.push('-f', 'best', '-o', path.join(downloadsDir, `${taskId}.%(ext)s`));
+    }
   } else {
-    // Instagram or generic
+    // Generic fallback
     args.push(
       '-o', path.join(downloadsDir, `${taskId}.%(ext)s`)
     );
