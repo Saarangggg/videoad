@@ -64,13 +64,21 @@ app.post('/api/info', async (req, res) => {
 
   console.log(`Fetching info for URL: ${url}`);
 
+  const isInstagram = url.includes('instagram.com');
+
   const args = [
     '--js-runtimes', `node:${nodePath}`,
     '--remote-components', 'ejs:github',
     '--no-playlist',
-    '--dump-json',
-    url
+    '--dump-json'
   ];
+
+  // Pass Chrome browser cookies for Instagram (requires login)
+  if (isInstagram) {
+    args.push('--cookies-from-browser', 'chrome');
+  }
+
+  args.push(url);
 
   const process = spawn('yt-dlp', args);
 
@@ -181,6 +189,8 @@ app.post('/api/download', (req, res) => {
 
   tasks.set(taskId, task);
 
+  const isInstagram = url.includes('instagram.com');
+
   // Determine yt-dlp arguments based on type
   let args = [
     '--js-runtimes', `node:${nodePath}`,
@@ -188,6 +198,11 @@ app.post('/api/download', (req, res) => {
     '--no-playlist',
     '--newline', // Output progress on new lines
   ];
+
+  // Pass Chrome browser cookies for Instagram (requires login)
+  if (isInstagram) {
+    args.push('--cookies-from-browser', 'chrome');
+  }
 
   if (type === 'audio') {
     const audioQuality = formatOption || '0';
