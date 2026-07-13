@@ -545,6 +545,81 @@
       background: rgba(255, 255, 255, 0.12);
       border-color: var(--text-muted);
     }
+
+    /* Instagram Connect Button */
+    .instagram-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+    }
+
+    .instagram-section-label {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 10px;
+      display: block;
+    }
+
+    .instagram-status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .instagram-status-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.82rem;
+      font-weight: 500;
+    }
+
+    .ig-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--text-muted);
+      flex-shrink: 0;
+    }
+
+    .ig-dot.connected {
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+    }
+
+    .ig-dot.disconnected {
+      background: var(--error);
+      box-shadow: 0 0 6px var(--error);
+    }
+
+    .ig-connect-btn {
+      background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 7px 14px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .ig-connect-btn:hover {
+      opacity: 0.88;
+      box-shadow: 0 3px 10px rgba(131, 58, 180, 0.4);
+    }
+
+    .ig-connect-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
   </style>
 </head>
 <body>
@@ -650,6 +725,17 @@
           <input type="checkbox" id="detect-page" checked>
           <span>Detect Whole Pages</span>
         </label>
+      </div>
+    </div>
+
+    <div class="instagram-section">
+      <span class="instagram-section-label">Instagram</span>
+      <div class="instagram-status-row">
+        <div class="instagram-status-label">
+          <div class="ig-dot" id="ig-dot"></div>
+          <span id="ig-status-text">Checking...</span>
+        </div>
+        <button class="ig-connect-btn" id="ig-connect-btn">Connect</button>
       </div>
     </div>
 

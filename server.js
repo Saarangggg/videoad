@@ -18,6 +18,9 @@ if (!fs.existsSync(downloadsDir)) {
   fs.mkdirSync(downloadsDir, { recursive: true });
 }
 
+// Instagram cookies file path (populated by the Chrome extension via /api/save-cookies)
+const instagramCookiesPath = path.join(__dirname, 'instagram_cookies.txt');
+
 // In-memory tasks database
 const tasks = new Map();
 
@@ -55,6 +58,47 @@ setInterval(() => {
   });
 }, 15 * 60 * 1000); // Run every 15 minutes
 
+// Endpoint: Save Instagram cookies (sent by Chrome Extension via chrome.cookies API)
+app.post('/api/save-cookies', (req, res) => {
+  const { cookies } = req.body;
+  if (!cookies || !Array.isArray(cookies)) {
+    return res.status(400).json({ error: 'cookies array required' });
+  }
+
+  // Write Netscape HTTP cookie format
+  const lines = ['# Netscape HTTP Cookie File', '# Exported by VideoAd Chrome Extension', ''];
+  for (const c of cookies) {
+    const domain = c.domain.startsWith('.') ? c.domain : '.' + c.domain;
+    const flag = c.domain.startsWith('.') ? 'TRUE' : 'FALSE';
+    const path_ = c.path || '/';
+    const secure = c.secure ? 'TRUE' : 'FALSE';
+    const expires = c.expirationDate ? Math.round(c.expirationDate) : 0;
+    lines.push(`${domain}\t${flag}\t${path_}\t${secure}\t${expires}\t${c.name}\t${c.value}`);
+  }
+
+  fs.writeFile(instagramCookiesPath, lines.join('\n'), (err) => {
+    if (err) {
+      console.error('Failed to write instagram_cookies.txt:', err);
+      return res.status(500).json({ error: 'Failed to save cookies' });
+    }
+    console.log(`Saved ${cookies.length} Instagram cookies to instagram_cookies.txt`);
+    res.json({ success: true, count: cookies.length });
+  });
+});
+
+// Endpoint: Check if Instagram cookies are saved
+app.get('/api/instagram-cookie-status', (req, res) => {
+  const exists = fs.existsSync(instagramCookiesPath);
+  let count = 0;
+  if (exists) {
+    try {
+      const content = fs.readFileSync(instagramCookiesPath, 'utf8');
+      count = content.split('\n').filter(l => l && !l.startsWith('#')).length;
+    } catch (e) {}
+  }
+  res.json({ connected: exists, cookieCount: count });
+});
+
 // Endpoint: Fetch URL info/metadata
 app.post('/api/info', async (req, res) => {
   const { url } = req.body;
@@ -73,9 +117,13 @@ app.post('/api/info', async (req, res) => {
     '--dump-json'
   ];
 
-  // Instagram requires Chrome session cookies + GraphQL API
+  // Instagram: prefer saved cookie file; fall back to browser cookies
   if (isInstagram) {
-    args.push('--cookies-from-browser', 'chrome');
+    if (fs.existsSync(instagramCookiesPath)) {
+      args.push('--cookies', instagramCookiesPath);
+    } else {
+      args.push('--cookies-from-browser', 'chrome');
+    }
     args.push('--extractor-args', 'instagram:api=graphql');
   }
 
@@ -202,9 +250,13 @@ app.post('/api/download', (req, res) => {
     '--newline', // Output progress on new lines
   ];
 
-  // Instagram requires Chrome session cookies + GraphQL API
+  // Instagram: prefer saved cookie file; fall back to browser cookies
   if (isInstagram) {
-    args.push('--cookies-from-browser', 'chrome');
+    if (fs.existsSync(instagramCookiesPath)) {
+      args.push('--cookies', instagramCookiesPath);
+    } else {
+      args.push('--cookies-from-browser', 'chrome');
+    }
     args.push('--extractor-args', 'instagram:api=graphql');
   }
 

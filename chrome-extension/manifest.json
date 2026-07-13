@@ -8,7 +8,8 @@
     "storage",
     "notifications",
     "downloads",
-    "activeTab"
+    "activeTab",
+    "cookies"
   ],
   "host_permissions": [
     "http://localhost:48774/*",

@@ -297,6 +297,78 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ---- Instagram Cookie Connect ----
+  const igDot = document.getElementById('ig-dot');
+  const igStatusText = document.getElementById('ig-status-text');
+  const igConnectBtn = document.getElementById('ig-connect-btn');
+
+  async function checkInstagramCookieStatus() {
+    try {
+      const res = await fetch('http://localhost:48774/api/instagram-cookie-status');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.connected) {
+          if (igDot) { igDot.className = 'ig-dot connected'; }
+          if (igStatusText) igStatusText.textContent = `Connected (${data.cookieCount} cookies)`;
+          if (igConnectBtn) igConnectBtn.textContent = 'Refresh';
+        } else {
+          if (igDot) { igDot.className = 'ig-dot disconnected'; }
+          if (igStatusText) igStatusText.textContent = 'Not connected';
+          if (igConnectBtn) igConnectBtn.textContent = 'Connect';
+        }
+      }
+    } catch (e) {
+      if (igStatusText) igStatusText.textContent = 'Server offline';
+    }
+  }
+
+  if (igConnectBtn) {
+    igConnectBtn.addEventListener('click', async () => {
+      igConnectBtn.disabled = true;
+      igConnectBtn.textContent = 'Reading cookies...';
+      try {
+        // Gather all Instagram cookies from Chrome
+        const cookies = await new Promise((resolve) => {
+          chrome.cookies.getAll({ domain: 'instagram.com' }, resolve);
+        });
+        if (!cookies || cookies.length === 0) {
+          if (igStatusText) igStatusText.textContent = 'No Instagram cookies found. Please log in to Instagram in Chrome first.';
+          if (igDot) { igDot.className = 'ig-dot disconnected'; }
+          igConnectBtn.disabled = false;
+          igConnectBtn.textContent = 'Connect';
+          return;
+        }
+        // Send to server
+        const res = await fetch('http://localhost:48774/api/save-cookies', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ cookies })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          if (igDot) { igDot.className = 'ig-dot connected'; }
+          if (igStatusText) igStatusText.textContent = `Connected (${data.count} cookies)`;
+          igConnectBtn.textContent = 'Refresh';
+        } else {
+          if (igStatusText) igStatusText.textContent = 'Failed to save cookies';
+          if (igDot) { igDot.className = 'ig-dot disconnected'; }
+          igConnectBtn.textContent = 'Retry';
+        }
+      } catch (e) {
+        if (igStatusText) igStatusText.textContent = 'Error: ' + e.message;
+        igConnectBtn.textContent = 'Retry';
+      }
+      igConnectBtn.disabled = false;
+    });
+  }
+
+  // Check status when settings panel is opened
+  if (settingsBtn) {
+    settingsBtn.addEventListener('click', () => {
+      checkInstagramCookieStatus();
+    });
+  }
+
   // Cleanup interval on unload
   window.addEventListener('unload', () => {
     clearInterval(serverInterval);
