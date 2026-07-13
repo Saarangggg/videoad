@@ -84,7 +84,8 @@
       <div class="va-toast-body">
         <div class="va-toast-title" id="va-toast-title"></div>
         <div class="va-toast-actions">
-          <button class="va-toast-btn view-more" id="va-toast-view-more">View More</button>
+          <button class="va-toast-btn download-video" id="va-toast-video">Download Video</button>
+          <button class="va-toast-btn download-audio" id="va-toast-audio">Download Audio</button>
         </div>
       </div>
     `;
@@ -103,12 +104,33 @@
       toast.remove();
     });
 
-    // View More button click
-    document.getElementById('va-toast-view-more').addEventListener('click', () => {
-      const targetUrl = `http://localhost:48774/?url=${encodeURIComponent(url)}`;
-      window.open(targetUrl, '_blank');
-      toast.remove();
-    });
+    const triggerBgDownload = (type, btn) => {
+      if (typeof chrome !== 'undefined' && chrome.runtime && chrome.runtime.id) {
+        chrome.runtime.sendMessage({
+          action: 'triggerDownload',
+          url: url,
+          title: title,
+          type: type
+        });
+        btn.textContent = 'Triggered!';
+        btn.disabled = true;
+        setTimeout(() => {
+          toast.remove();
+        }, 1500);
+      }
+    };
+
+    // Download Video click
+    const videoBtn = document.getElementById('va-toast-video');
+    if (videoBtn) {
+      videoBtn.addEventListener('click', () => triggerBgDownload('video', videoBtn));
+    }
+
+    // Download Audio click
+    const audioBtn = document.getElementById('va-toast-audio');
+    if (audioBtn) {
+      audioBtn.addEventListener('click', () => triggerBgDownload('audio', audioBtn));
+    }
 
     // Automatically hide toast after 8 seconds
     setTimeout(() => {

@@ -112,12 +112,21 @@
   box-sizing: border-box !important;
 }
 
-.va-toast-btn.view-more {
+.va-toast-btn.download-video {
+  background: #ff0f0f !important;
+}
+
+.va-toast-btn.download-video:hover {
+  background: #d10000 !important;
+  box-shadow: 0 0 8px rgba(255, 15, 15, 0.35) !important;
+}
+
+.va-toast-btn.download-audio {
   background: rgba(255, 255, 255, 0.08) !important;
   border: 1px solid rgba(255, 255, 255, 0.1) !important;
 }
 
-.va-toast-btn.view-more:hover {
+.va-toast-btn.download-audio:hover {
   background: rgba(255, 255, 255, 0.12) !important;
   border-color: #8e8e93 !important;
 }
