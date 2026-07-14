@@ -4,7 +4,7 @@ net session >nul 2>&1
 if %errorLevel% neq 0 (
     echo Requesting Administrator privileges...
     set "SCRIPT_PATH=%~f0"
-    powershell -Command "Start-Process -FilePath $env:SCRIPT_PATH -Verb RunAs"
+    powershell -ExecutionPolicy Bypass -Command "Start-Process -FilePath $env:SCRIPT_PATH -Verb RunAs"
     exit /b
 )
 cd /d "%~dp0"
@@ -79,7 +79,7 @@ echo.
 
 :: 6. Install node dependencies
 echo Installing production node dependencies...
-set "PATH=C:\Program Files\nodejs;%USERPROFILE%\AppData\Roaming\npm;%PATH%"
+set "PATH=C:\Program Files\nodejs;C:\Program Files (x86)\nodejs;%USERPROFILE%\AppData\Roaming\npm;%PATH%"
 cd /d "C:\VideoAd"
 call npm install --production
 if %errorLevel% neq 0 (
@@ -113,7 +113,7 @@ reg add "HKCU\Software\Classes\videoad\shell\open\command" /ve /t REG_SZ /d "wsc
 
 :: 9. Create Desktop shortcut
 echo Creating Desktop shortcut...
-powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut([System.Environment]::GetFolderPath('Desktop') + '\VideoAd Downloader.lnk'); $Shortcut.TargetPath = 'wscript.exe'; $Shortcut.Arguments = '\"C:\VideoAd\launch_server.vbs\"'; $Shortcut.IconLocation = 'shell32.dll,238'; $Shortcut.WorkingDirectory = 'C:\VideoAd'; $Shortcut.Save()"
+powershell -ExecutionPolicy Bypass -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut([System.Environment]::GetFolderPath('Desktop') + '\VideoAd Downloader.lnk'); $Shortcut.TargetPath = 'wscript.exe'; $Shortcut.Arguments = '\"C:\VideoAd\launch_server.vbs\"'; $Shortcut.IconLocation = 'shell32.dll,238'; $Shortcut.WorkingDirectory = 'C:\VideoAd'; $Shortcut.Save()"
 
 echo ==============================================
 echo Setup complete!
