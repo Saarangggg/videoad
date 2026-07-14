@@ -9,7 +9,7 @@ if %errorLevel% neq 0 (
 )
 cd /d "%~dp0"
 
-title VideoAd Local Setup Installer
+title VideoAd Setup Installer
 echo ==============================================
 echo       VideoAd Auto Installer ^& Runner
 echo ==============================================
@@ -37,14 +37,32 @@ for /f "tokens=5" %%a in ('netstat -aon ^| findstr :48774 ^| findstr LISTENING')
 )
 echo.
 
-:: 3. Create destination directory and copy local files
+:: 3. Create destination directory
 echo Creating destination folder at C:\VideoAd...
 if not exist "C:\VideoAd" mkdir "C:\VideoAd"
-echo Copying files to C:\VideoAd...
-xcopy /s /e /y /q "%~dp0*" "C:\VideoAd\" >nul
 echo.
 
-:: 4. Check & Download yt-dlp
+:: 4. Download source code zip
+echo Downloading codebase from GitHub...
+powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/Saarangggg/videoad/archive/refs/heads/main.zip' -OutFile 'C:\VideoAd\videoad.zip'"
+if %errorLevel% neq 0 (
+    echo ERROR: Failed to download the codebase ZIP file.
+    pause
+    exit /b
+)
+
+:: 5. Extract files
+echo Extracting codebase...
+if exist "C:\VideoAd_temp" rmdir /s /q "C:\VideoAd_temp"
+powershell -Command "Expand-Archive -Path 'C:\VideoAd\videoad.zip' -DestinationPath 'C:\VideoAd_temp' -Force"
+del "C:\VideoAd\videoad.zip"
+
+echo Moving files to C:\VideoAd...
+xcopy /s /e /y /q "C:\VideoAd_temp\videoad-main\*" "C:\VideoAd\" >nul
+rmdir /s /q "C:\VideoAd_temp"
+echo.
+
+:: 6. Check & Download yt-dlp
 echo Checking/Downloading yt-dlp...
 if not exist "C:\VideoAd\yt-dlp.exe" (
     powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe' -OutFile 'C:\VideoAd\yt-dlp.exe'"
@@ -52,7 +70,7 @@ if not exist "C:\VideoAd\yt-dlp.exe" (
 echo [OK] yt-dlp is ready.
 echo.
 
-:: 5. Check & Download FFMPEG
+:: 7. Check & Download FFMPEG
 echo Checking/Downloading FFMPEG...
 if not exist "C:\VideoAd\ffmpeg.exe" (
     powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.4.1/ffmpeg-4.4.1-win-64.zip' -OutFile 'C:\VideoAd\ffmpeg.zip'"
@@ -62,13 +80,13 @@ if not exist "C:\VideoAd\ffmpeg.exe" (
 echo [OK] FFMPEG is ready.
 echo.
 
-:: 6. Install node dependencies
+:: 8. Install node dependencies
 echo Installing production node dependencies...
 cd /d "C:\VideoAd"
 call npm install --production
 echo.
 
-:: 7. Create silent runner files in C:\VideoAd
+:: 9. Create silent runner files in C:\VideoAd
 echo Setting up silent background execution runners...
 (
 echo @echo off
@@ -88,7 +106,7 @@ echo Set WshShell = CreateObject^("WScript.Shell"^)
 echo WshShell.Run "cmd /c C:\VideoAd\run_server.bat", 0, false
 ) > "C:\VideoAd\launch_server.vbs"
 
-:: 8. Registry Setup for custom protocol (videoad://)
+:: 10. Registry Setup for custom protocol (videoad://)
 echo Registering custom protocol handler (videoad://)...
 reg add "HKCU\Software\Classes\videoad" /ve /t REG_SZ /d "URL:videoad Protocol" /f >nul
 reg add "HKCU\Software\Classes\videoad" /v "URL Protocol" /t REG_SZ /d "" /f >nul
@@ -96,7 +114,7 @@ reg add "HKCU\Software\Classes\videoad\shell" /f >nul
 reg add "HKCU\Software\Classes\videoad\shell\open" /f >nul
 reg add "HKCU\Software\Classes\videoad\shell\open\command" /ve /t REG_SZ /d "wscript.exe \"C:\VideoAd\launch_server.vbs\"" /f >nul
 
-:: 9. Create Desktop shortcut
+:: 11. Create Desktop shortcut
 echo Creating Desktop shortcut...
 powershell -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut('$env:USERPROFILE\Desktop\VideoAd Downloader.lnk'); $Shortcut.TargetPath = 'wscript.exe'; $Shortcut.Arguments = '\"C:\VideoAd\launch_server.vbs\"'; $Shortcut.IconLocation = 'shell32.dll,238'; $Shortcut.WorkingDirectory = 'C:\VideoAd'; $Shortcut.Save()"
 
