@@ -49,7 +49,7 @@ It is built on top of [`yt-dlp`](https://github.com/yt-dlp/yt-dlp) — the world
 | 📊 **Live Download Progress** | Real-time progress bar, speed, and ETA shown in the extension popup |
 | 🌐 **1000+ Sites Supported** | Powered by yt-dlp — works on YouTube, Vimeo, Twitter, Reddit, TikTok, and hundreds more |
 | 🔒 **100% Local & Private** | All downloads happen on your own machine — no external servers involved |
-| ⚡ **Auto-Setup Installer** | One-click `setup_and_run.bat` downloads `yt-dlp` and `ffmpeg` automatically if missing |
+| ⚡ **Auto-Setup Installer** | One-click `install_videoad.bat` downloads `yt-dlp` and `ffmpeg` automatically if missing |
 | 🔌 **Chrome Extension** | Companion extension for in-page detection, popup controls, and download triggering |
 
 ---
@@ -89,7 +89,7 @@ If you prefer to clone the repository manually:
    git clone https://github.com/Saarangggg/videoad.git
    cd videoad
    ```
-2. Double-click `setup_and_run.bat` (it will elevate to Admin, copy files to `C:\VideoAd`, and set up the silent background shortcut exactly like the one-click installer).
+2. Double-click `install_videoad.bat` (it will elevate to Admin, copy files to `C:\VideoAd`, and set up the silent background shortcut exactly like the one-click installer).
 
 ---
 

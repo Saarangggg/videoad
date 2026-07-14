@@ -8,9 +8,9 @@ if errorlevel 1 (
     del "%temp%\getadmin.vbs"
     exit /b
 )
-cd /d "%SystemDrive%\"
+cd /d "%~dp0"
 
-title VideoAd Setup Installer
+title VideoAd Auto Setup Installer
 echo ==============================================
 echo       VideoAd Auto Installer ^& Runner
 echo ==============================================
@@ -35,47 +35,54 @@ echo Checking if VideoAd is currently running...
 powershell -ExecutionPolicy Bypass -Command "$p = Get-NetTCPConnection -LocalPort 48774 -ErrorAction SilentlyContinue; if ($p) { Stop-Process -Id $p.OwningProcess -Force -ErrorAction SilentlyContinue }"
 echo.
 
-:: 3. Create destination directory under the system drive
+:: 3. Create destination directory and prepare codebase
 echo Creating destination folder at %SystemDrive%\VideoAd...
 if not exist "%SystemDrive%\VideoAd" mkdir "%SystemDrive%\VideoAd"
 if not exist "%SystemDrive%\VideoAd" (
-    echo ERROR: Failed to create installation folder under %SystemDrive%\VideoAd.
+    echo ERROR: Failed to create folder %SystemDrive%\VideoAd.
     pause
     exit /b
+)
+
+if exist "%~dp0package.json" (
+    echo Local repository detected. Copying local files to %SystemDrive%\VideoAd...
+    xcopy /s /e /y /q "%~dp0*" "%SystemDrive%\VideoAd\" >nul
+    if errorlevel 1 (
+        echo ERROR: Failed to copy codebase files to %SystemDrive%\VideoAd.
+        pause
+        exit /b
+    )
+) else (
+    echo Standalone installer detected. Downloading codebase from GitHub...
+    powershell -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/Saarangggg/videoad/archive/refs/heads/main.zip' -OutFile '%SystemDrive%\VideoAd\videoad.zip' -UseBasicParsing"
+    if not exist "%SystemDrive%\VideoAd\videoad.zip" (
+        echo ERROR: Failed to download the codebase ZIP file.
+        pause
+        exit /b
+    )
+    
+    echo Extracting codebase...
+    if exist "%SystemDrive%\VideoAd_temp" rmdir /s /q "%SystemDrive%\VideoAd_temp"
+    powershell -ExecutionPolicy Bypass -Command "Expand-Archive -Path '%SystemDrive%\VideoAd\videoad.zip' -DestinationPath '%SystemDrive%\VideoAd_temp' -Force"
+    if not exist "%SystemDrive%\VideoAd_temp" (
+        echo ERROR: Failed to extract the codebase ZIP file.
+        pause
+        exit /b
+    )
+    del "%SystemDrive%\VideoAd\videoad.zip"
+
+    echo Moving files to %SystemDrive%\VideoAd...
+    xcopy /s /e /y /q "%SystemDrive%\VideoAd_temp\videoad-main\*" "%SystemDrive%\VideoAd\" >nul
+    if errorlevel 1 (
+        echo ERROR: Failed to copy codebase files to %SystemDrive%\VideoAd.
+        pause
+        exit /b
+    )
+    rmdir /s /q "%SystemDrive%\VideoAd_temp"
 )
 echo.
 
-:: 4. Download source code zip
-echo Downloading codebase from GitHub...
-powershell -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/Saarangggg/videoad/archive/refs/heads/main.zip' -OutFile '%SystemDrive%\VideoAd\videoad.zip' -UseBasicParsing"
-if not exist "%SystemDrive%\VideoAd\videoad.zip" (
-    echo ERROR: Failed to download the codebase ZIP file.
-    pause
-    exit /b
-)
-
-:: 5. Extract files
-echo Extracting codebase...
-if exist "%SystemDrive%\VideoAd_temp" rmdir /s /q "%SystemDrive%\VideoAd_temp"
-powershell -ExecutionPolicy Bypass -Command "Expand-Archive -Path '%SystemDrive%\VideoAd\videoad.zip' -DestinationPath '%SystemDrive%\VideoAd_temp' -Force"
-if not exist "%SystemDrive%\VideoAd_temp" (
-    echo ERROR: Failed to extract the codebase ZIP file.
-    pause
-    exit /b
-)
-del "%SystemDrive%\VideoAd\videoad.zip"
-
-echo Moving files to %SystemDrive%\VideoAd...
-xcopy /s /e /y /q "%SystemDrive%\VideoAd_temp\videoad-main\*" "%SystemDrive%\VideoAd\" >nul
-if errorlevel 1 (
-    echo ERROR: Failed to copy codebase files to %SystemDrive%\VideoAd.
-    pause
-    exit /b
-)
-rmdir /s /q "%SystemDrive%\VideoAd_temp"
-echo.
-
-:: 6. Check & Download yt-dlp
+:: 4. Check & Download yt-dlp
 echo Checking/Downloading yt-dlp...
 if not exist "%SystemDrive%\VideoAd\yt-dlp.exe" (
     powershell -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe' -OutFile '%SystemDrive%\VideoAd\yt-dlp.exe' -UseBasicParsing"
@@ -88,7 +95,7 @@ if not exist "%SystemDrive%\VideoAd\yt-dlp.exe" (
 echo [OK] yt-dlp is ready.
 echo.
 
-:: 7. Check & Download FFMPEG
+:: 5. Check & Download FFMPEG
 echo Checking/Downloading FFMPEG...
 if not exist "%SystemDrive%\VideoAd\ffmpeg.exe" (
     powershell -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.4.1/ffmpeg-4.4.1-win-64.zip' -OutFile '%SystemDrive%\VideoAd\ffmpeg.zip' -UseBasicParsing"
@@ -103,7 +110,7 @@ if not exist "%SystemDrive%\VideoAd\ffmpeg.exe" (
 echo [OK] FFMPEG is ready.
 echo.
 
-:: 8. Install node dependencies
+:: 6. Install node dependencies
 echo Installing production node dependencies...
 set "PATH=%SystemDrive%\Program Files\nodejs;%SystemDrive%\Program Files (x86)\nodejs;%USERPROFILE%\AppData\Roaming\npm;%PATH%"
 cd /d "%SystemDrive%\VideoAd"
@@ -115,7 +122,7 @@ if errorlevel 1 (
 )
 echo.
 
-:: 9. Create silent runner files
+:: 7. Create silent runner files
 echo Setting up silent background execution runners...
 echo @echo off > "%SystemDrive%\VideoAd\run_server.bat"
 echo cd /d "%SystemDrive%\VideoAd" >> "%SystemDrive%\VideoAd\run_server.bat"
@@ -131,7 +138,7 @@ echo node server.js >> "%SystemDrive%\VideoAd\run_server.bat"
 echo Set WshShell = CreateObject^("WScript.Shell"^) > "%SystemDrive%\VideoAd\launch_server.vbs"
 echo WshShell.Run "cmd /c %SystemDrive%\VideoAd\run_server.bat", 0, false >> "%SystemDrive%\VideoAd\launch_server.vbs"
 
-:: 10. Registry Setup for custom protocol (videoad://)
+:: 8. Registry Setup for custom protocol (videoad://)
 echo Registering custom protocol handler (videoad://)...
 reg add "HKCU\Software\Classes\videoad" /ve /t REG_SZ /d "URL:videoad Protocol" /f >nul
 reg add "HKCU\Software\Classes\videoad" /v "URL Protocol" /t REG_SZ /d "" /f >nul
@@ -139,7 +146,7 @@ reg add "HKCU\Software\Classes\videoad\shell" /f >nul
 reg add "HKCU\Software\Classes\videoad\shell\open" /f >nul
 reg add "HKCU\Software\Classes\videoad\shell\open\command" /ve /t REG_SZ /d "wscript.exe \"%SystemDrive%\VideoAd\launch_server.vbs\"" /f >nul
 
-:: 11. Create Desktop shortcut
+:: 9. Create Desktop shortcut
 echo Creating Desktop shortcut...
 powershell -ExecutionPolicy Bypass -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut([System.Environment]::GetFolderPath('Desktop') + '\VideoAd Downloader.lnk'); $Shortcut.TargetPath = 'wscript.exe'; $Shortcut.Arguments = '\"%SystemDrive%\VideoAd\launch_server.vbs\"'; $Shortcut.IconLocation = 'shell32.dll,238'; $Shortcut.WorkingDirectory = '%SystemDrive%\VideoAd'; $Shortcut.Save()"
 
