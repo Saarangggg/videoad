@@ -32,10 +32,7 @@ echo.
 
 :: 2. Check and stop any currently running VideoAd process
 echo Checking if VideoAd is currently running...
-for /f "tokens=5" %%a in ('netstat -aon ^| findstr :48774 ^| findstr LISTENING') do (
-    echo Stopping currently running VideoAd process (PID %%a)...
-    taskkill /f /pid %%a >nul 2>&1
-)
+powershell -ExecutionPolicy Bypass -Command "Stop-Process -Id (Get-NetTCPConnection -LocalPort 48774 -ErrorAction SilentlyContinue).OwningProcess -Force -ErrorAction SilentlyContinue"
 echo.
 
 :: 3. Create destination directory under the system drive
