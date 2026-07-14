@@ -107,4 +107,6 @@ echo.
 echo Launching server silently in background...
 wscript.exe "C:\VideoAd\launch_server.vbs"
 echo ==============================================
+echo Press any key to exit this installer...
+pause >nul
 exit /b
