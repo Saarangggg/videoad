@@ -154,7 +154,7 @@ async function startDownload(url, pageTitle, type = 'video') {
     activeDownloads.delete(tempId);
     
     // Show notification for failure
-    chrome.notifications.create({
+    chrome.notifications.create('', {
       type: 'basic',
       iconUrl: 'icon.png',
       title: 'VideoAd: Download Error',
@@ -250,7 +250,7 @@ function handleComplete(taskId, title) {
   // Clear badge
   chrome.action.setBadgeText({ text: '' });
 
-  chrome.notifications.create({
+  chrome.notifications.create('', {
     type: 'basic',
     iconUrl: 'icon.png',
     title: 'VideoAd: Download Complete!',
@@ -285,7 +285,7 @@ function handleFailed(taskId, title, errorMsg) {
   chrome.action.setBadgeText({ text: 'ERR' });
   chrome.action.setBadgeBackgroundColor({ color: '#ff453a' });
 
-  chrome.notifications.create({
+  chrome.notifications.create('', {
     type: 'basic',
     iconUrl: 'icon.png',
     title: 'VideoAd: Download Failed',
