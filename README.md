@@ -17,6 +17,12 @@ Download videos, audio, and reels from YouTube, Instagram, and 1000+ supported s
 
 </div>
 
+> [!IMPORTANT]
+> **🚀 One-Click Windows Installation:**
+> 1. Right-click and save [**install_videoad.bat**](https://raw.githubusercontent.com/Saarangggg/videoad/main/install_videoad.bat) directly to your computer.
+> 2. Double-click the file (it will automatically ask for **Administrator** rights to configure the local environment).
+> 3. The script automatically installs Node dependencies, fetches `yt-dlp` & `ffmpeg`, registers the background handler, and starts VideoAd silently!
+
 ---
 
 ## 📖 What is VideoAd?
