@@ -1,10 +1,9 @@
 @echo off
 :: Check for Admin rights
 net session >nul 2>&1
-if %errorLevel% neq 0 (
+if %errorlevel% neq 0 (
     echo Requesting Administrator privileges...
-    set "SCRIPT_PATH=%~f0"
-    powershell -ExecutionPolicy Bypass -Command "Start-Process -FilePath $env:SCRIPT_PATH -Verb RunAs"
+    powershell -ExecutionPolicy Bypass -Command "Start-Process -FilePath \"%~f0\" -Verb RunAs"
     exit /b
 )
 cd /d "%~dp0"
