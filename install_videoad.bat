@@ -32,7 +32,7 @@ echo.
 
 :: 2. Check and stop any currently running VideoAd process
 echo Checking if VideoAd is currently running...
-powershell -ExecutionPolicy Bypass -Command "Stop-Process -Id (Get-NetTCPConnection -LocalPort 48774 -ErrorAction SilentlyContinue).OwningProcess -Force -ErrorAction SilentlyContinue"
+powershell -ExecutionPolicy Bypass -Command "$p = Get-NetTCPConnection -LocalPort 48774 -ErrorAction SilentlyContinue; if ($p) { Stop-Process -Id $p.OwningProcess -Force -ErrorAction SilentlyContinue }"
 echo.
 
 :: 3. Create destination directory under the system drive
@@ -47,7 +47,7 @@ echo.
 
 :: 4. Download source code zip
 echo Downloading codebase from GitHub...
-powershell -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/Saarangggg/videoad/archive/refs/heads/main.zip' -OutFile '$env:SystemDrive\VideoAd\videoad.zip' -UseBasicParsing"
+powershell -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/Saarangggg/videoad/archive/refs/heads/main.zip' -OutFile '%SystemDrive%\VideoAd\videoad.zip' -UseBasicParsing"
 if not exist "%SystemDrive%\VideoAd\videoad.zip" (
     echo ERROR: Failed to download the codebase ZIP file.
     pause
@@ -57,7 +57,7 @@ if not exist "%SystemDrive%\VideoAd\videoad.zip" (
 :: 5. Extract files
 echo Extracting codebase...
 if exist "%SystemDrive%\VideoAd_temp" rmdir /s /q "%SystemDrive%\VideoAd_temp"
-powershell -ExecutionPolicy Bypass -Command "Expand-Archive -Path '$env:SystemDrive\VideoAd\videoad.zip' -DestinationPath '$env:SystemDrive\VideoAd_temp' -Force"
+powershell -ExecutionPolicy Bypass -Command "Expand-Archive -Path '%SystemDrive%\VideoAd\videoad.zip' -DestinationPath '%SystemDrive%\VideoAd_temp' -Force"
 if not exist "%SystemDrive%\VideoAd_temp" (
     echo ERROR: Failed to extract the codebase ZIP file.
     pause
@@ -78,7 +78,7 @@ echo.
 :: 6. Check & Download yt-dlp
 echo Checking/Downloading yt-dlp...
 if not exist "%SystemDrive%\VideoAd\yt-dlp.exe" (
-    powershell -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe' -OutFile '$env:SystemDrive\VideoAd\yt-dlp.exe' -UseBasicParsing"
+    powershell -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe' -OutFile '%SystemDrive%\VideoAd\yt-dlp.exe' -UseBasicParsing"
 )
 if not exist "%SystemDrive%\VideoAd\yt-dlp.exe" (
     echo ERROR: Failed to download yt-dlp.exe.
@@ -91,8 +91,8 @@ echo.
 :: 7. Check & Download FFMPEG
 echo Checking/Downloading FFMPEG...
 if not exist "%SystemDrive%\VideoAd\ffmpeg.exe" (
-    powershell -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.4.1/ffmpeg-4.4.1-win-64.zip' -OutFile '$env:SystemDrive\VideoAd\ffmpeg.zip' -UseBasicParsing"
-    powershell -ExecutionPolicy Bypass -Command "Expand-Archive -Path '$env:SystemDrive\VideoAd\ffmpeg.zip' -DestinationPath '$env:SystemDrive\VideoAd' -Force"
+    powershell -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.4.1/ffmpeg-4.4.1-win-64.zip' -OutFile '%SystemDrive%\VideoAd\ffmpeg.zip' -UseBasicParsing"
+    powershell -ExecutionPolicy Bypass -Command "Expand-Archive -Path '%SystemDrive%\VideoAd\ffmpeg.zip' -DestinationPath '%SystemDrive%\VideoAd' -Force"
     del "%SystemDrive%\VideoAd\ffmpeg.zip"
 )
 if not exist "%SystemDrive%\VideoAd\ffmpeg.exe" (
@@ -141,7 +141,7 @@ reg add "HKCU\Software\Classes\videoad\shell\open\command" /ve /t REG_SZ /d "wsc
 
 :: 11. Create Desktop shortcut
 echo Creating Desktop shortcut...
-powershell -ExecutionPolicy Bypass -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut([System.Environment]::GetFolderPath('Desktop') + '\VideoAd Downloader.lnk'); $Shortcut.TargetPath = 'wscript.exe'; $Shortcut.Arguments = '\"' + $env:SystemDrive + '\VideoAd\launch_server.vbs\"'; $Shortcut.IconLocation = 'shell32.dll,238'; $Shortcut.WorkingDirectory = $env:SystemDrive + '\VideoAd'; $Shortcut.Save()"
+powershell -ExecutionPolicy Bypass -Command "$WshShell = New-Object -ComObject WScript.Shell; $Shortcut = $WshShell.CreateShortcut([System.Environment]::GetFolderPath('Desktop') + '\VideoAd Downloader.lnk'); $Shortcut.TargetPath = 'wscript.exe'; $Shortcut.Arguments = '\"%SystemDrive%\VideoAd\launch_server.vbs\"'; $Shortcut.IconLocation = 'shell32.dll,238'; $Shortcut.WorkingDirectory = '%SystemDrive%\VideoAd'; $Shortcut.Save()"
 
 echo ==============================================
 echo Setup complete!
