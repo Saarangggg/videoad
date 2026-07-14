@@ -319,7 +319,7 @@ If VideoAd has been useful to you, please consider giving it a ⭐ on GitHub —
 
 <div align="center">
 
-Made with ❤️ by [Saarang](https://github.com/Saarangggg)
+Made with ❤️ by [Saarang](https://github.com/Saarangggg) ([Instagram](https://www.instagram.com/5araang/))
 
 [⬆ Back to top](#videoad--open-source-video--audio-downloader)
 

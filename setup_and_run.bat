@@ -42,12 +42,22 @@ echo Creating destination folder at C:\VideoAd...
 if not exist "C:\VideoAd" mkdir "C:\VideoAd"
 echo Copying files to C:\VideoAd...
 xcopy /s /e /y /q "%~dp0*" "C:\VideoAd\" >nul
+if %errorLevel% neq 0 (
+    echo ERROR: Failed to copy codebase files to C:\VideoAd.
+    pause
+    exit /b
+)
 echo.
 
 :: 4. Check & Download yt-dlp
 echo Checking/Downloading yt-dlp...
 if not exist "C:\VideoAd\yt-dlp.exe" (
     powershell -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe' -OutFile 'C:\VideoAd\yt-dlp.exe' -UseBasicParsing"
+)
+if not exist "C:\VideoAd\yt-dlp.exe" (
+    echo ERROR: Failed to download yt-dlp.exe.
+    pause
+    exit /b
 )
 echo [OK] yt-dlp is ready.
 echo.
@@ -59,13 +69,24 @@ if not exist "C:\VideoAd\ffmpeg.exe" (
     powershell -ExecutionPolicy Bypass -Command "Expand-Archive -Path 'C:\VideoAd\ffmpeg.zip' -DestinationPath 'C:\VideoAd' -Force"
     del "C:\VideoAd\ffmpeg.zip"
 )
+if not exist "C:\VideoAd\ffmpeg.exe" (
+    echo ERROR: Failed to download or extract ffmpeg.exe.
+    pause
+    exit /b
+)
 echo [OK] FFMPEG is ready.
 echo.
 
 :: 6. Install node dependencies
 echo Installing production node dependencies...
+set "PATH=C:\Program Files\nodejs;%USERPROFILE%\AppData\Roaming\npm;%PATH%"
 cd /d "C:\VideoAd"
 call npm install --production
+if %errorLevel% neq 0 (
+    echo ERROR: npm install failed! Please check your internet connection or Node.js installation.
+    pause
+    exit /b
+)
 echo.
 
 :: 7. Create silent runner files in C:\VideoAd
