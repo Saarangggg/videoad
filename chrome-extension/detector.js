@@ -29,6 +29,31 @@
 
   function detectMediaTypes() {
     const currentUrl = window.location.href;
+    const hostname = window.location.hostname.toLowerCase();
+
+    // Explicit checks for main platforms to avoid triggering on profiles/feeds
+    if (hostname.includes('instagram.com')) {
+      const isReel = currentUrl.includes('/reel/') || currentUrl.includes('/reels/');
+      const isPost = currentUrl.includes('/p/');
+      if (!isReel && !isPost) {
+        return { hasVideo: false, hasAudio: false, hasImage: false, isMediaPage: false };
+      }
+    }
+
+    if (hostname.includes('pinterest.com') || hostname.includes('pin.it')) {
+      const isPin = currentUrl.includes('/pin/') || currentUrl.includes('/pins/');
+      if (!isPin) {
+        return { hasVideo: false, hasAudio: false, hasImage: false, isMediaPage: false };
+      }
+    }
+
+    if (hostname.includes('youtube.com') || hostname.includes('youtu.be')) {
+      const isWatch = currentUrl.includes('/watch') || currentUrl.includes('/shorts') || currentUrl.includes('/v/');
+      if (!isWatch) {
+        return { hasVideo: false, hasAudio: false, hasImage: false, isMediaPage: false };
+      }
+    }
+
     const video = document.querySelector('video');
     const audio = document.querySelector('audio');
 
@@ -40,6 +65,10 @@
     const isDirectImageUrl = /\.(jpe?g|png|webp|gif|bmp)(\?.*)?$/i.test(currentUrl);
     // Also detect pages with prominent <img> tags (e.g. image viewer pages)
     const hasLargeImage = !hasVideo && (() => {
+      // Don't run generic large image detection on social home/profile feeds
+      if (hostname.includes('instagram.com') || hostname.includes('facebook.com') || hostname.includes('twitter.com') || hostname.includes('x.com') || hostname.includes('youtube.com') || hostname.includes('pinterest.com')) {
+        return false;
+      }
       const imgs = Array.from(document.querySelectorAll('img'));
       return imgs.some(img => img.naturalWidth > 400 && img.naturalHeight > 300);
     })();

@@ -184,6 +184,16 @@ app.post('/api/info', async (req, res) => {
     return res.status(400).json({ error: 'URL is required' });
   }
 
+  // Guard: Avoid attempting to download whole Instagram profiles/feeds which are broken/unsupported
+  if (url.includes('instagram.com') && !url.includes('/p/') && !url.includes('/reel/') && !url.includes('/reels/')) {
+    return res.status(400).json({ error: 'Instagram profiles/feeds are not supported. Please paste a direct link to a post or reel.' });
+  }
+
+  // Guard: Avoid attempting to download Pinterest profile/board pages
+  if ((url.includes('pinterest.com') || url.includes('pin.it')) && !url.includes('/pin/') && !url.includes('/pins/')) {
+    return res.status(400).json({ error: 'Pinterest boards/profiles are not supported. Please paste a direct link to a pin.' });
+  }
+
   console.log(`Fetching info for URL: ${url}`);
 
   const isInstagram = url.includes('instagram.com');
@@ -319,6 +329,16 @@ app.post('/api/download', (req, res) => {
   const { url, type, title, formatOption } = req.body;
   if (!url || !type) {
     return res.status(400).json({ error: 'URL and type are required' });
+  }
+
+  // Guard: Avoid attempting to download whole Instagram profiles/feeds which are broken/unsupported
+  if (url.includes('instagram.com') && !url.includes('/p/') && !url.includes('/reel/') && !url.includes('/reels/')) {
+    return res.status(400).json({ error: 'Instagram profiles/feeds are not supported. Please paste a direct link to a post or reel.' });
+  }
+
+  // Guard: Avoid attempting to download Pinterest profile/board pages
+  if ((url.includes('pinterest.com') || url.includes('pin.it')) && !url.includes('/pin/') && !url.includes('/pins/')) {
+    return res.status(400).json({ error: 'Pinterest boards/profiles are not supported. Please paste a direct link to a pin.' });
   }
 
   const taskId = uuidv4();
