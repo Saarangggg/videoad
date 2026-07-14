@@ -19,9 +19,11 @@ Download videos, audio, and reels from YouTube, Instagram, and 1000+ supported s
 
 > [!IMPORTANT]
 > **🚀 One-Click Windows Installation:**
-> 1. Right-click and save [**install_videoad.bat**](https://raw.githubusercontent.com/Saarangggg/videoad/main/install_videoad.bat) directly to your computer.
-> 2. Double-click the file (it will automatically ask for **Administrator** rights to configure the local environment).
-> 3. The script automatically installs Node dependencies, fetches `yt-dlp` & `ffmpeg`, registers the background handler, and starts VideoAd silently!
+> - **Method A (Easiest):** Open PowerShell and run this one-line command to download and start the installer immediately:
+>   ```powershell
+>   powershell -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Saarangggg/videoad/main/install_videoad.bat' -OutFile '%USERPROFILE%\Desktop\install_videoad.bat' -UseBasicParsing; Start-Process -FilePath '%USERPROFILE%\Desktop\install_videoad.bat' -Verb RunAs"
+>   ```
+> - **Method B:** **Right-click** [**this link (install_videoad.bat)**](https://raw.githubusercontent.com/Saarangggg/videoad/main/install_videoad.bat) and choose **"Save link as..."** or **"Save target as..."** to download it directly as a `.bat` file (do not left-click it directly, or Chrome will just show it as text). Double-click the saved file to run.
 
 ---
 
@@ -68,7 +70,7 @@ You do not need to download the full repository manually. You can download and i
 
 ### Method 1: The One-Click Installer (Recommended)
 
-1. Download [install_videoad.bat](https://raw.githubusercontent.com/Saarangggg/videoad/main/install_videoad.bat) directly to your computer.
+1. Right-click and download [install_videoad.bat](https://raw.githubusercontent.com/Saarangggg/videoad/main/install_videoad.bat) (choose **Save link as...**) directly to your computer, or use the PowerShell one-liner command.
 2. Double-click the file (it will automatically prompt for **Administrator** rights).
 3. The installer will automatically:
    - ✅ Check for Node.js.

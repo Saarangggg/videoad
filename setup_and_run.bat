@@ -89,25 +89,19 @@ if %errorLevel% neq 0 (
 )
 echo.
 
-:: 7. Create silent runner files in C:\VideoAd
-echo Setting up silent background execution runners...
-(
-echo @echo off
-echo cd /d "C:\VideoAd"
-echo set PATH=C:\VideoAd;%%PATH%%
-echo netstat -ano ^| findstr LISTENING ^| findstr :48774 ^> nul
-echo if %%errorlevel%% equ 0 ^(
-echo     start "" "http://localhost:48774"
-echo     exit
-echo ^)
-echo start "" "http://localhost:48774"
-echo node server.js
-) > "C:\VideoAd\run_server.bat"
+echo @echo off > "C:\VideoAd\run_server.bat"
+echo cd /d "C:\VideoAd" >> "C:\VideoAd\run_server.bat"
+echo set PATH=C:\VideoAd;%%PATH%% >> "C:\VideoAd\run_server.bat"
+echo netstat -ano ^| findstr LISTENING ^| findstr :48774 ^> nul >> "C:\VideoAd\run_server.bat"
+echo if %%errorlevel%% equ 0 ( >> "C:\VideoAd\run_server.bat"
+echo     start "" "http://localhost:48774" >> "C:\VideoAd\run_server.bat"
+echo     exit >> "C:\VideoAd\run_server.bat"
+echo ) >> "C:\VideoAd\run_server.bat"
+echo start "" "http://localhost:48774" >> "C:\VideoAd\run_server.bat"
+echo node server.js >> "C:\VideoAd\run_server.bat"
 
-(
-echo Set WshShell = CreateObject^("WScript.Shell"^)
-echo WshShell.Run "cmd /c C:\VideoAd\run_server.bat", 0, false
-) > "C:\VideoAd\launch_server.vbs"
+echo Set WshShell = CreateObject("WScript.Shell") > "C:\VideoAd\launch_server.vbs"
+echo WshShell.Run "cmd /c C:\VideoAd\run_server.bat", 0, false >> "C:\VideoAd\launch_server.vbs"
 
 :: 8. Registry Setup for custom protocol (videoad://)
 echo Registering custom protocol handler (videoad://)...
