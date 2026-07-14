@@ -21,7 +21,7 @@ Download videos, audio, and reels from YouTube, Instagram, and 1000+ supported s
 > **🚀 One-Click Windows Installation:**
 > - **Method A (Easiest):** Open PowerShell (or Command Prompt) and run this one-line command to download and start the installer immediately:
 >   ```powershell
->   powershell -ExecutionPolicy Bypass -Command "$p = Join-Path $env:USERPROFILE 'Desktop\install_videoad.bat'; Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Saarangggg/videoad/main/install_videoad.bat' -OutFile $p -UseBasicParsing; Start-Process -FilePath $p -Verb RunAs"
+>   powershell -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Saarangggg/videoad/main/install_videoad.bat' -OutFile (Join-Path $env:USERPROFILE 'Desktop\install_videoad.bat') -UseBasicParsing; Start-Process -FilePath (Join-Path $env:USERPROFILE 'Desktop\install_videoad.bat') -Verb RunAs"
 >   ```
 > - **Method B:** **Right-click** [**this link (install_videoad.bat)**](https://raw.githubusercontent.com/Saarangggg/videoad/main/install_videoad.bat) and choose **"Save link as..."** or **"Save target as..."** to download it directly as a `.bat` file (do not left-click it directly, or Chrome will just show it as text). Double-click the saved file to run.
 
@@ -73,7 +73,7 @@ To download and install VideoAd automatically on Windows:
 Copy and paste this single command into your Windows PowerShell and press **Enter**. It will automatically download the installer, prompt for Admin elevation, and complete the setup:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -Command "$p = Join-Path $env:USERPROFILE 'Desktop\install_videoad.bat'; Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Saarangggg/videoad/main/install_videoad.bat' -OutFile $p -UseBasicParsing; Start-Process -FilePath $p -Verb RunAs"
+powershell -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Saarangggg/videoad/main/install_videoad.bat' -OutFile (Join-Path $env:USERPROFILE 'Desktop\install_videoad.bat') -UseBasicParsing; Start-Process -FilePath (Join-Path $env:USERPROFILE 'Desktop\install_videoad.bat') -Verb RunAs"
 ```
 
 ### 📥 Alternative: Manual Download
@@ -165,7 +165,7 @@ To completely remove VideoAd from your system:
 Copy and paste this single command into your Windows PowerShell and press **Enter** to stop the server, delete custom protocol registry keys, delete Desktop shortcuts, and remove the `C:\VideoAd` installation folder:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -Command "$p = Join-Path $env:USERPROFILE 'Desktop\uninstall_videoad.bat'; Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Saarangggg/videoad/main/uninstall_videoad.bat' -OutFile $p -UseBasicParsing; Start-Process -FilePath $p -Verb RunAs"
+powershell -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Saarangggg/videoad/main/uninstall_videoad.bat' -OutFile (Join-Path $env:USERPROFILE 'Desktop\uninstall_videoad.bat') -UseBasicParsing; Start-Process -FilePath (Join-Path $env:USERPROFILE 'Desktop\uninstall_videoad.bat') -Verb RunAs"
 ```
 
 ### 📥 Alternative: Manual Download
