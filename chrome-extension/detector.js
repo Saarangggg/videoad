@@ -302,7 +302,7 @@
 
     // 1. Stories Ad Skip (Active leaf-node detection) - ONLY RUN IF ACTIVE STORY VIEW IS OPEN
     if (window.location.pathname.includes('/stories/')) {
-      const container = document.querySelector('section, div[class*="story" i], div[class*="player" i], [role="dialog"]');
+      const container = document.querySelector('[role="dialog"], section[class*="viewer" i], div[class*="viewer" i]');
       if (!container) return;
 
       let isAdActive = false;
@@ -319,13 +319,13 @@
 
       if (isAdActive) {
         const nextButton = 
-          document.querySelector('button[aria-label="Next"]') ||
-          document.querySelector('svg[aria-label="Next"]')?.closest('button') ||
-          document.querySelector('svg[aria-label="Chevron right"]')?.closest('button') ||
-          document.querySelector('button[class*="next" i]') ||
-          document.querySelector('button[class*="right" i]') ||
-          document.querySelector('div[class*="next" i] button') ||
-          document.querySelector('div[class*="right" i] button') ||
+          container.querySelector('button[aria-label="Next"]') ||
+          container.querySelector('svg[aria-label="Next"]')?.closest('button') ||
+          container.querySelector('svg[aria-label="Chevron right"]')?.closest('button') ||
+          container.querySelector('button[class*="next" i]') ||
+          container.querySelector('button[class*="right" i]') ||
+          container.querySelector('div[class*="next" i] button') ||
+          container.querySelector('div[class*="right" i] button') ||
           document.querySelector('.coreSpriteRightChevron');
 
         if (nextButton) {
