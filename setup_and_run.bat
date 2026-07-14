@@ -47,7 +47,7 @@ echo.
 :: 4. Check & Download yt-dlp
 echo Checking/Downloading yt-dlp...
 if not exist "C:\VideoAd\yt-dlp.exe" (
-    powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe' -OutFile 'C:\VideoAd\yt-dlp.exe'"
+    powershell -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/yt-dlp/yt-dlp/releases/latest/download/yt-dlp.exe' -OutFile 'C:\VideoAd\yt-dlp.exe' -UseBasicParsing"
 )
 echo [OK] yt-dlp is ready.
 echo.
@@ -55,8 +55,8 @@ echo.
 :: 5. Check & Download FFMPEG
 echo Checking/Downloading FFMPEG...
 if not exist "C:\VideoAd\ffmpeg.exe" (
-    powershell -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.4.1/ffmpeg-4.4.1-win-64.zip' -OutFile 'C:\VideoAd\ffmpeg.zip'"
-    powershell -Command "Expand-Archive -Path 'C:\VideoAd\ffmpeg.zip' -DestinationPath 'C:\VideoAd' -Force"
+    powershell -ExecutionPolicy Bypass -Command "[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12; Invoke-WebRequest -Uri 'https://github.com/ffbinaries/ffbinaries-prebuilt/releases/download/v4.4.1/ffmpeg-4.4.1-win-64.zip' -OutFile 'C:\VideoAd\ffmpeg.zip' -UseBasicParsing"
+    powershell -ExecutionPolicy Bypass -Command "Expand-Archive -Path 'C:\VideoAd\ffmpeg.zip' -DestinationPath 'C:\VideoAd' -Force"
     del "C:\VideoAd\ffmpeg.zip"
 )
 echo [OK] FFMPEG is ready.
