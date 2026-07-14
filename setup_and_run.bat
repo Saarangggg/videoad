@@ -3,7 +3,7 @@ fltmc >nul 2>&1
 if errorlevel 1 (
     echo Requesting Administrator privileges...
     echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
-    echo UAC.ShellExecute "cmd.exe", "/c """ ^& "%~f0" ^& """", "", "runas", 1 >> "%temp%\getadmin.vbs"
+    echo UAC.ShellExecute "cmd.exe", "/k """ ^& "%~f0" ^& """", "", "runas", 1 >> "%temp%\getadmin.vbs"
     "%SystemRoot%\System32\wscript.exe" "%temp%\getadmin.vbs"
     del "%temp%\getadmin.vbs"
     exit /b
