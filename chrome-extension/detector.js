@@ -302,8 +302,7 @@
 
     // 1. Stories Ad Skip (Active leaf-node detection) - ONLY RUN IF ACTIVE STORY VIEW IS OPEN
     if (window.location.pathname.includes('/stories/')) {
-      const container = document.querySelector('[role="dialog"], section[class*="viewer" i], div[class*="viewer" i]');
-      if (!container) return;
+      const container = document.querySelector('[role="dialog"], section[class*="viewer" i], div[class*="viewer" i]') || document.body;
 
       let isAdActive = false;
       const leafNodes = container.querySelectorAll('div, span, a');
