@@ -1,20 +1,23 @@
 const activeDownloads = new Map();
 
-// Update context menu on install or startup
+// Update context menu and adblock rules on install or startup
 chrome.runtime.onInstalled.addListener(() => {
-  chrome.storage.local.get(['active'], (result) => {
-    // Set active default to true so it works out of the box when installed
+  chrome.storage.local.get(['active', 'adBlockActive'], (result) => {
     const active = result.active !== undefined ? !!result.active : true;
-    chrome.storage.local.set({ active }, () => {
+    const adBlockActive = result.adBlockActive !== undefined ? !!result.adBlockActive : true;
+    chrome.storage.local.set({ active, adBlockActive }, () => {
       updateContextMenu(active);
+      updateAdBlockRules(adBlockActive);
     });
   });
 });
 
 chrome.runtime.onStartup.addListener(() => {
-  chrome.storage.local.get(['active'], (result) => {
+  chrome.storage.local.get(['active', 'adBlockActive'], (result) => {
     const active = result.active !== undefined ? !!result.active : true;
+    const adBlockActive = result.adBlockActive !== undefined ? !!result.adBlockActive : true;
     updateContextMenu(active);
+    updateAdBlockRules(adBlockActive);
   });
 });
 
@@ -32,6 +35,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   } else if (message.action === 'getActiveDownloads') {
     const list = Array.from(activeDownloads.values());
     sendResponse({ downloads: list });
+  } else if (message.action === 'toggleAdBlock') {
+    updateAdBlockRules(message.active);
   }
   return true;
 });
@@ -300,4 +305,13 @@ function handleFailed(taskId, title, errorMsg) {
     chrome.action.setBadgeText({ text: '' });
     chrome.runtime.sendMessage({ action: 'downloadProgressUpdate' }).catch(() => {});
   }, 7000);
+}
+
+function updateAdBlockRules(active) {
+  if (typeof chrome !== 'undefined' && chrome.declarativeNetRequest) {
+    chrome.declarativeNetRequest.updateEnabledRulesets({
+      enableRulesetIds: active ? ["ruleset_1"] : [],
+      disableRulesetIds: active ? [] : ["ruleset_1"]
+    }).catch(err => console.error("Error updating adblock rules:", err));
+  }
 }

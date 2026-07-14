@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
   const toggle = document.getElementById('toggle-extension');
   const statusDesc = document.getElementById('extension-status-desc');
+  const toggleAdBlock = document.getElementById('toggle-adblock');
+  const adBlockStatusDesc = document.getElementById('adblock-status-desc');
   const downloadsContainer = document.getElementById('downloads-container');
   const emptyState = document.getElementById('empty-state');
 
@@ -23,12 +25,16 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Load active state & settings
   chrome.storage.local.get([
-    'active', 'detectVideo', 'detectAudio', 'detectImage', 'detectLink', 'detectPage'
+    'active', 'detectVideo', 'detectAudio', 'detectImage', 'detectLink', 'detectPage', 'adBlockActive'
   ], (data) => {
     if (toggle) {
       toggle.checked = !!data.active;
       updateExtensionStatusText(toggle.checked);
       toggleOptionsGroup(toggle.checked);
+    }
+    if (toggleAdBlock) {
+      toggleAdBlock.checked = data.adBlockActive !== false;
+      updateAdBlockStatusText(toggleAdBlock.checked);
     }
     if (detectVideo) detectVideo.checked = data.detectVideo !== false;
     if (detectAudio) detectAudio.checked = data.detectAudio !== false;
@@ -64,9 +70,25 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  if (toggleAdBlock) {
+    toggleAdBlock.addEventListener('change', () => {
+      const active = toggleAdBlock.checked;
+      chrome.storage.local.set({ adBlockActive: active }, () => {
+        updateAdBlockStatusText(active);
+        chrome.runtime.sendMessage({ action: 'toggleAdBlock', active });
+      });
+    });
+  }
+
   function updateExtensionStatusText(isActive) {
     if (statusDesc) {
       statusDesc.textContent = isActive ? 'Active — context menu enabled' : 'Inactive — click to start';
+    }
+  }
+
+  function updateAdBlockStatusText(isActive) {
+    if (adBlockStatusDesc) {
+      adBlockStatusDesc.textContent = isActive ? 'Active — blocking ads & popups' : 'Inactive — click to enable';
     }
   }
 

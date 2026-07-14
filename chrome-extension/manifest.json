@@ -9,7 +9,8 @@
     "notifications",
     "downloads",
     "activeTab",
-    "cookies"
+    "cookies",
+    "declarativeNetRequest"
   ],
   "host_permissions": [
     "http://localhost:48774/*",
@@ -47,5 +48,14 @@
   },
   "icons": {
     "128": "icon.png"
+  },
+  "declarative_net_request": {
+    "rule_resources": [
+      {
+        "id": "ruleset_1",
+        "enabled": true,
+        "path": "rules.json"
+      }
+    ]
   }
 }

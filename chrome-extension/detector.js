@@ -210,6 +210,86 @@
     }, 8000);
   }
 
+  const adSelectors = [
+    'iframe[src*="doubleclick"]',
+    'iframe[src*="googleads"]',
+    'iframe[id^="google_ads"]',
+    '.adsbygoogle',
+    'div[class*="ad-unit"]',
+    'div[id*="ad-unit"]',
+    'div[class*="sponsor"]',
+    'div[id*="sponsor"]',
+    'div[class*="advertisement"]',
+    'div[id*="advertisement"]',
+    'a[href*="googleadservices.com"]'
+  ];
+
+  function removeDisplayAds() {
+    adSelectors.forEach(selector => {
+      document.querySelectorAll(selector).forEach(el => {
+        el.remove();
+      });
+    });
+  }
+
+  function skipYouTubeAds() {
+    if (!window.location.hostname.includes('youtube.com')) return;
+
+    const video = document.querySelector('video');
+    const adShowing = document.querySelector('.ad-showing') || document.querySelector('.ad-interrupting');
+    const skipButton = document.querySelector('.ytp-ad-skip-button') || document.querySelector('.ytp-ad-skip-button-modern');
+
+    if (adShowing && video) {
+      video.muted = true;
+      video.playbackRate = 16;
+      if (isFinite(video.duration) && video.currentTime < video.duration - 0.1) {
+        video.currentTime = video.duration - 0.1;
+      }
+    }
+
+    if (skipButton) {
+      skipButton.click();
+    }
+
+    const overlays = document.querySelectorAll('.ytp-ad-overlay-container, .ytp-ad-image-overlay, #masthead-ad, ytd-companion-ad-renderer, .ytd-merch-shelf-renderer');
+    overlays.forEach(el => {
+      el.style.display = 'none';
+    });
+  }
+
+  let adBlockInterval = null;
+  let ytAdInterval = null;
+
+  function runAdBlocker() {
+    if (contextInvalid) return;
+    if (!isContextValid()) { stopPolling(); return; }
+
+    chrome.storage.local.get(['adBlockActive'], (result) => {
+      if (contextInvalid || !isContextValid()) return;
+      const isAdBlockActive = result.adBlockActive !== false;
+      if (isAdBlockActive) {
+        if (!adBlockInterval) adBlockInterval = setInterval(removeDisplayAds, 1500);
+        if (!ytAdInterval && window.location.hostname.includes('youtube.com')) {
+          ytAdInterval = setInterval(skipYouTubeAds, 300);
+        }
+        removeDisplayAds();
+        if (window.location.hostname.includes('youtube.com')) skipYouTubeAds();
+      } else {
+        if (adBlockInterval) { clearInterval(adBlockInterval); adBlockInterval = null; }
+        if (ytAdInterval) { clearInterval(ytAdInterval); ytAdInterval = null; }
+      }
+    });
+  }
+
+  try {
+    chrome.runtime.onMessage.addListener((message) => {
+      if (message.action === 'adBlockStateChanged') {
+        runAdBlocker();
+      }
+    });
+  } catch (e) {}
+
   mediaInterval = setInterval(checkForMedia, 3000);
   checkForMedia();
+  runAdBlocker();
 })();
