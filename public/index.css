@@ -1024,6 +1024,35 @@ body {
   box-shadow: 0 4px 10px var(--accent-red-glow);
 }
 
+/* Features Summary Info Box */
+.features-summary {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(229, 9, 20, 0.08);
+  border-radius: var(--radius-md);
+  padding: 14px 20px;
+  margin-bottom: 5px;
+}
+
+.feat-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.feat-icon {
+  font-size: 0.95rem;
+}
+
+.feat-text {
+  letter-spacing: 0.2px;
+}
+
 /* Supported Platforms Badges Container */
 .platforms-container {
   margin-top: 15px;
