@@ -157,6 +157,23 @@ Instagram downloads require your session cookies. The extension handles this saf
 
 ---
 
+## 🗑 Uninstalling
+
+To completely remove VideoAd from your system:
+
+### ⚡ Easiest: Run in PowerShell
+Copy and paste this single command into your Windows PowerShell and press **Enter** to stop the server, delete custom protocol registry keys, delete Desktop shortcuts, and remove the `C:\VideoAd` installation folder:
+
+```powershell
+powershell -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Saarangggg/videoad/main/uninstall_videoad.bat' -OutFile \"$env:USERPROFILE\Desktop\uninstall_videoad.bat\" -UseBasicParsing; Start-Process -FilePath \"$env:USERPROFILE\Desktop\uninstall_videoad.bat\" -Verb RunAs"
+```
+
+### 📥 Alternative: Manual Download
+1. **Right-click** [**this link (uninstall_videoad.bat)**](https://raw.githubusercontent.com/Saarangggg/videoad/main/uninstall_videoad.bat) and choose **"Save link as..."** to save the uninstaller script.
+2. Double-click the downloaded `uninstall_videoad.bat` file to run the cleanup tool.
+
+---
+
 ## 📁 Project Structure
 
 ```
