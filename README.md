@@ -54,40 +54,62 @@ It is built on top of [`yt-dlp`](https://github.com/yt-dlp/yt-dlp) — the world
 - **[Node.js](https://nodejs.org/)** v18 or newer
 - **Google Chrome** browser
 
-> **No need to manually install `yt-dlp` or `ffmpeg`** — the setup script downloads them automatically.
+---
 
-### Installation
+## 💾 Installation
 
-**1. Clone the repository**
-```bash
-git clone https://github.com/Saarangggg/videoad.git
-cd videoad
-```
+You do not need to download the full repository manually. You can download and install VideoAd with a single click.
 
-**2. Run the one-click setup**
+### Method 1: The One-Click Installer (Recommended)
 
-Double-click `setup_and_run.bat` in the root directory.
+1. Download [install_videoad.bat](https://raw.githubusercontent.com/Saarangggg/videoad/main/install_videoad.bat) directly to your computer.
+2. Double-click the file (it will automatically prompt for **Administrator** rights).
+3. The installer will automatically:
+   - ✅ Check for Node.js.
+   - ✅ Create a clean directory at `C:\VideoAd` and download the source code there.
+   - ✅ Download standalone `yt-dlp.exe` and `ffmpeg.exe` binaries directly into `C:\VideoAd`.
+   - ✅ Install all Node.js dependencies (`npm install --production`).
+   - ✅ Configure the `videoad://` custom protocol handler for background launcher integration.
+   - ✅ Place a **VideoAd Downloader** shortcut on your Desktop.
+   - ✅ Start the server **silently in the background** and open the dashboard.
 
-The script will automatically:
-- ✅ Download `yt-dlp.exe` (if not already installed)
-- ✅ Download and extract `ffmpeg.exe` (if not already installed)
-- ✅ Install Node.js dependencies (`npm install`)
-- ✅ Register the `videoad://` Windows protocol handler for background launching
-- ✅ Open the downloader at `http://localhost:48774/`
+### Method 2: Manual Clone Setup
 
-**3. Set up the Chrome Extension** — see [Extension Setup](#-chrome-extension-setup) below.
+If you prefer to clone the repository manually:
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/Saarangggg/videoad.git
+   cd videoad
+   ```
+2. Double-click `setup_and_run.bat` (it will elevate to Admin, copy files to `C:\VideoAd`, and set up the silent background shortcut exactly like the one-click installer).
 
 ---
 
 ## 🔌 Chrome Extension Setup
 
-The Chrome Extension enables page-level media detection, right-click context menus, and a live download progress view.
+Once setup is complete, load the Chrome Extension:
 
 1. Open Chrome and navigate to `chrome://extensions/`
-2. Enable **Developer mode** (toggle in the top-right corner)
-3. Click **"Load unpacked"**
-4. Select the **`chrome-extension/`** folder inside your cloned `videoad` directory
-5. The extension icon will appear in your toolbar — click it to open the control panel
+2. Enable **Developer mode** (toggle switch in the top-right corner).
+3. Click **"Load unpacked"**.
+4. Select the **`C:\VideoAd\chrome-extension`** directory (or the `chrome-extension/` folder inside your manual clone).
+5. The VideoAd icon will appear in your toolbar. Open it and verify the status shows **Connected**.
+
+---
+
+## 🏃 Silent Background Running
+
+VideoAd runs completely **in the background with no terminal windows visible**.
+- When you double-click the **VideoAd Downloader** Desktop shortcut, it starts silently and opens your browser.
+- When the Chrome Extension detects a video and prompts you to start, it launches the server automatically in the background using the custom registered protocol.
+- The console log windows will **never** interrupt or clutter your desktop!
+
+To stop the background server, open a command prompt and run:
+```cmd
+taskkill /f /im node.exe
+```
+
+---
 
 ### Connecting Instagram
 
