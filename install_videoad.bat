@@ -1,12 +1,14 @@
 @echo off
-:: Check for Admin rights using fltmc (standard, reliable filter manager tool check)
 fltmc >nul 2>&1
 if errorlevel 1 (
     echo Requesting Administrator privileges...
-    powershell -ExecutionPolicy Bypass -Command "Start-Process -FilePath \"%~f0\" -Verb RunAs"
+    echo Set UAC = CreateObject^("Shell.Application"^) > "%temp%\getadmin.vbs"
+    echo UAC.ShellExecute "cmd.exe", "/c """ ^& "%~f0" ^& """", "", "runas", 1 >> "%temp%\getadmin.vbs"
+    "%SystemRoot%\System32\wscript.exe" "%temp%\getadmin.vbs"
+    del "%temp%\getadmin.vbs"
     exit /b
 )
-cd /d "%~dp0"
+cd /d "%SystemDrive%\"
 
 title VideoAd Setup Installer
 echo ==============================================
