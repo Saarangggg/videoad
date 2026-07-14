@@ -246,11 +246,13 @@
     'div[id*="ad-box" i]'
   ];
 
+  const protectSelector = '#masthead-container, ytd-masthead, #masthead, ytmusic-nav-bar, #header, header, .nav-bar, #movie_player, .html5-video-container, .ytmusic-player-bar, #ytp-control-bar, .ytp-chrome-bottom';
+
   function removeDisplayAds() {
     adSelectors.forEach(selector => {
       document.querySelectorAll(selector).forEach(el => {
         // Protect main site navigation headers, brand logos, search bars, and video players
-        if (el.closest('ytd-masthead, #masthead, ytmusic-nav-bar, #header, header, .nav-bar, #movie_player, .html5-video-container, .ytmusic-player-bar')) {
+        if (el.matches(protectSelector) || el.closest(protectSelector)) {
           return;
         }
         el.remove();
@@ -295,35 +297,6 @@
     });
   }
 
-  function injectPopupBlocker() {
-    if (document.getElementById('videoad-popup-blocker')) return;
-    const code = `
-      (function() {
-        const originalOpen = window.open;
-        window.open = function(url, name, specs, replace) {
-          const isAdPattern = url && (
-            url.includes('onclickads') || 
-            url.includes('popads') || 
-            url.includes('popcash') || 
-            url.includes('adsterra') ||
-            url.includes('exoclick') ||
-            url.includes('exdynsrv') ||
-            url.includes('propellerads')
-          );
-          if (isAdPattern) {
-            console.log("[VideoAd] Blocked ad popup: " + url);
-            return null;
-          }
-          return originalOpen.apply(this, arguments);
-        };
-      })();
-    `;
-    const script = document.createElement('script');
-    script.id = 'videoad-popup-blocker';
-    script.textContent = code;
-    (document.head || document.documentElement).appendChild(script);
-  }
-
   let adBlockInterval = null;
   let ytAdInterval = null;
 
@@ -334,6 +307,10 @@
     chrome.storage.local.get(['adBlockActive'], (result) => {
       if (contextInvalid || !isContextValid()) return;
       const isAdBlockActive = result.adBlockActive !== false;
+      
+      // Update DOM attribute to communicate state to MAIN world popup-blocker.js
+      document.documentElement.setAttribute('data-videoad-adblock', isAdBlockActive ? 'true' : 'false');
+
       if (isAdBlockActive) {
         if (!adBlockInterval) adBlockInterval = setInterval(removeDisplayAds, 1000);
         if (!ytAdInterval && window.location.hostname.includes('youtube.com')) {
@@ -341,12 +318,9 @@
         }
         removeDisplayAds();
         if (window.location.hostname.includes('youtube.com')) skipYouTubeAds();
-        injectPopupBlocker();
       } else {
         if (adBlockInterval) { clearInterval(adBlockInterval); adBlockInterval = null; }
         if (ytAdInterval) { clearInterval(ytAdInterval); ytAdInterval = null; }
-        const blocker = document.getElementById('videoad-popup-blocker');
-        if (blocker) blocker.remove();
       }
     });
   }

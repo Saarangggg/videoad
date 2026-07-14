@@ -41,6 +41,19 @@
       ],
       "js": ["detector.js"],
       "css": ["detector.css"]
+    },
+    {
+      "matches": [
+        "http://*/*",
+        "https://*/*"
+      ],
+      "exclude_matches": [
+        "http://localhost:48774/*",
+        "http://127.0.0.1:48774/*"
+      ],
+      "js": ["popup-blocker.js"],
+      "world": "MAIN",
+      "run_at": "document_start"
     }
   ],
   "background": {
