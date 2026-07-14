@@ -249,6 +249,10 @@
   function removeDisplayAds() {
     adSelectors.forEach(selector => {
       document.querySelectorAll(selector).forEach(el => {
+        // Protect main site navigation headers, brand logos, search bars, and video players
+        if (el.closest('ytd-masthead, #masthead, ytmusic-nav-bar, #header, header, .nav-bar, #movie_player, .html5-video-container, .ytmusic-player-bar')) {
+          return;
+        }
         el.remove();
       });
     });
@@ -257,16 +261,28 @@
   function skipYouTubeAds() {
     if (!window.location.hostname.includes('youtube.com')) return;
 
-    const video = document.querySelector('video');
-    const adShowing = document.querySelector('.ad-showing') || document.querySelector('.ad-interrupting');
-    const skipButton = document.querySelector('.ytp-ad-skip-button') || document.querySelector('.ytp-ad-skip-button-modern');
+    const mediaElements = document.querySelectorAll('video, audio');
+    const adShowing = 
+      document.querySelector('.ad-showing') || 
+      document.querySelector('.ad-interrupting') ||
+      document.querySelector('ytmusic-player-bar[class*="ad"]') ||
+      document.querySelector('.ytp-ad-player-overlay') ||
+      document.querySelector('.ytmusic-ad-badge') ||
+      document.querySelector('.ytp-ad-badge');
 
-    if (adShowing && video) {
-      video.muted = true;
-      video.playbackRate = 16;
-      if (isFinite(video.duration) && video.currentTime < video.duration - 0.1) {
-        video.currentTime = video.duration - 0.1;
-      }
+    const skipButton = 
+      document.querySelector('.ytp-ad-skip-button') || 
+      document.querySelector('.ytp-ad-skip-button-modern') ||
+      document.querySelector('.ytmusic-ad-skip-button');
+
+    if (adShowing && mediaElements.length > 0) {
+      mediaElements.forEach(media => {
+        media.muted = true;
+        media.playbackRate = 16;
+        if (isFinite(media.duration) && media.currentTime < media.duration - 0.1) {
+          media.currentTime = media.duration - 0.1;
+        }
+      });
     }
 
     if (skipButton) {
