@@ -67,22 +67,34 @@ It is built on top of [`yt-dlp`](https://github.com/yt-dlp/yt-dlp) — the world
 
 ## 💾 Installation
 
-You do not need to download the full repository manually. You can download and install VideoAd with a single click.
+To download and install VideoAd automatically on Windows:
 
-### Method 1: The One-Click Installer (Recommended)
+### ⚡ Easiest: Run in PowerShell
+Copy and paste this single command into your Windows PowerShell and press **Enter**. It will automatically download the installer, prompt for Admin elevation, and complete the setup:
 
-1. Right-click and download [install_videoad.bat](https://raw.githubusercontent.com/Saarangggg/videoad/main/install_videoad.bat) (choose **Save link as...**) directly to your computer, or use the PowerShell one-liner command.
-2. Double-click the file (it will automatically prompt for **Administrator** rights).
-3. The installer will automatically:
-   - ✅ Check for Node.js.
-   - ✅ Create a clean directory at `C:\VideoAd` and download the source code there.
-   - ✅ Download standalone `yt-dlp.exe` and `ffmpeg.exe` binaries directly into `C:\VideoAd`.
-   - ✅ Install all Node.js dependencies (`npm install --production`).
-   - ✅ Configure the `videoad://` custom protocol handler for background launcher integration.
-   - ✅ Place a **VideoAd Downloader** shortcut on your Desktop.
-   - ✅ Start the server **silently in the background** and open the dashboard.
+```powershell
+powershell -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Saarangggg/videoad/main/install_videoad.bat' -OutFile \"$env:USERPROFILE\Desktop\install_videoad.bat\" -UseBasicParsing; Start-Process -FilePath \"$env:USERPROFILE\Desktop\install_videoad.bat\" -Verb RunAs"
+```
 
-### Method 2: Manual Clone Setup
+### 📥 Alternative: Manual Download
+1. **Right-click** [**this link (install_videoad.bat)**](https://raw.githubusercontent.com/Saarangggg/videoad/main/install_videoad.bat) and choose **"Save link as..."** or **"Save target as..."** to save the file to your computer.
+   *(Do not left-click it directly, or your browser will display the script's raw code as text.)*
+2. Double-click the downloaded `install_videoad.bat` file to run the installer.
+
+---
+
+### What the installer does:
+- ✅ Checks for Node.js.
+- ✅ Creates a clean directory at `C:\VideoAd` and extracts the source code.
+- ✅ Downloads standalone `yt-dlp.exe` and `ffmpeg.exe` binaries directly into `C:\VideoAd`.
+- ✅ Installs all Node.js dependencies (`npm install --production`).
+- ✅ Configures the `videoad://` custom protocol handler for background launcher integration.
+- ✅ Places a **VideoAd Downloader** shortcut on your Desktop.
+- ✅ Starts the server **silently in the background** and opens the dashboard.
+
+---
+
+### 💻 Manual Clone Setup
 
 If you prefer to clone the repository manually:
 1. Clone the repository:
