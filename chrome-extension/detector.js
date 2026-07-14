@@ -302,17 +302,17 @@
 
     // 1. Stories Ad Skip (Active leaf-node detection) - ONLY RUN IF ACTIVE STORY VIEW IS OPEN
     if (window.location.pathname.includes('/stories/')) {
+      const container = document.querySelector('section, div[class*="story" i], div[class*="player" i], [role="dialog"]');
+      if (!container) return;
+
       let isAdActive = false;
-      const leafNodes = document.querySelectorAll('div, span, a');
+      const leafNodes = container.querySelectorAll('div, span, a');
       for (const el of leafNodes) {
         if (el.children.length === 0) { // Leaf node
           const txt = el.textContent.trim();
           if (txt === 'Ad' || txt === 'Sponsored') {
-            // Check if it is inside the story player container
-            if (el.closest('section, div[class*="story" i], div[class*="player" i], [role="dialog"]')) {
-              isAdActive = true;
-              break;
-            }
+            isAdActive = true;
+            break;
           }
         }
       }
