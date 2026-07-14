@@ -300,26 +300,36 @@
   function skipInstagramAds() {
     if (!window.location.hostname.includes('instagram.com')) return;
 
-    // 1. Stories Ad Skip
-    const headers = Array.from(document.querySelectorAll('header, div[class*="header" i], div[class*="top-bar" i]'));
-    for (const header of headers) {
-      const divs = Array.from(header.querySelectorAll('div, span, a'));
-      const hasAdLabel = divs.some(el => {
+    // 1. Stories Ad Skip (Active leaf-node detection)
+    let isAdActive = false;
+    const leafNodes = document.querySelectorAll('div, span, a');
+    for (const el of leafNodes) {
+      if (el.children.length === 0) { // Leaf node
         const txt = el.textContent.trim();
-        return txt === 'Ad' || txt === 'Sponsored';
-      });
-
-      if (hasAdLabel) {
-        const nextButton = 
-          document.querySelector('button[aria-label="Next"]') || 
-          document.querySelector('button[class*="next" i]') || 
-          document.querySelector('div[class*="right-chevron" i]') ||
-          document.querySelector('.coreSpriteRightChevron');
-
-        if (nextButton) {
-          nextButton.click();
-          break;
+        if (txt === 'Ad' || txt === 'Sponsored') {
+          // Check if it is inside the story player container
+          if (el.closest('section, div[class*="story" i], div[class*="player" i], [role="dialog"]')) {
+            isAdActive = true;
+            break;
+          }
         }
+      }
+    }
+
+    if (isAdActive) {
+      const nextButton = 
+        document.querySelector('button[aria-label="Next"]') ||
+        document.querySelector('svg[aria-label="Next"]')?.closest('button') ||
+        document.querySelector('svg[aria-label="Chevron right"]')?.closest('button') ||
+        document.querySelector('button[class*="next" i]') ||
+        document.querySelector('button[class*="right" i]') ||
+        document.querySelector('div[class*="next" i] button') ||
+        document.querySelector('div[class*="right" i] button') ||
+        document.querySelector('.coreSpriteRightChevron');
+
+      if (nextButton) {
+        console.log("[VideoAd] Instagram story ad skipped");
+        nextButton.click();
       }
     }
 
