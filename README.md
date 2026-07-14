@@ -21,11 +21,11 @@ Download videos, audio, and reels from YouTube, Instagram, and 1000+ supported s
 
 ## 📖 What is VideoAd?
 
-**VideoAd** is a fully open-source, locally hosted media downloader that runs entirely on your own computer — no cloud servers, no subscriptions, no data collection. It pairs a sleek **web dashboard** (served at `http://localhost:48774`) with a **Chrome Extension** that detects videos on any webpage and lets you download them instantly with one click.
+**VideoAd** is a fully open-source, locally hosted media downloader developed by [**5araang**](https://github.com/Saarangggg) that runs entirely on your own computer — no cloud servers, no subscriptions, no data collection. It pairs a sleek **web dashboard** (served at `http://localhost:48774`) with a **Chrome Extension** that detects videos on any webpage and lets you download them instantly with one click.
 
 It is built on top of [`yt-dlp`](https://github.com/yt-dlp/yt-dlp) — the world's most powerful open-source media extractor — and supports **1000+ websites** out of the box including YouTube, Instagram, Twitter/X, Reddit, Vimeo, TikTok, SoundCloud, and more.
 
-> **Why self-hosted?** No rate limits. No ads. No accounts. No sending your history to a third-party server. Your downloads, your machine.
+> **Why self-hosted?** Developed by 5araang with absolute privacy in mind. No rate limits. No ads. No accounts. No sending your history to a third-party server. Your downloads, your machine.
 
 ---
 
