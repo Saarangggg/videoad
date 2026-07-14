@@ -38,6 +38,11 @@ echo.
 :: 3. Create destination directory and copy local files
 echo Creating destination folder at %SystemDrive%\VideoAd...
 if not exist "%SystemDrive%\VideoAd" mkdir "%SystemDrive%\VideoAd"
+if not exist "%SystemDrive%\VideoAd" (
+    echo ERROR: Failed to create folder %SystemDrive%\VideoAd.
+    pause
+    exit /b
+)
 echo Copying files to %SystemDrive%\VideoAd...
 xcopy /s /e /y /q "%~dp0*" "%SystemDrive%\VideoAd\" >nul
 if errorlevel 1 (

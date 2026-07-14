@@ -38,7 +38,7 @@ echo.
 :: 3. Create destination directory under the system drive
 echo Creating destination folder at %SystemDrive%\VideoAd...
 if not exist "%SystemDrive%\VideoAd" mkdir "%SystemDrive%\VideoAd"
-if errorlevel 1 (
+if not exist "%SystemDrive%\VideoAd" (
     echo ERROR: Failed to create installation folder under %SystemDrive%\VideoAd.
     pause
     exit /b
