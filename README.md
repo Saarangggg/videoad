@@ -50,6 +50,7 @@ It is built on top of [`yt-dlp`](https://github.com/yt-dlp/yt-dlp) — the world
 | 🌐 **1000+ Sites Supported** | Powered by yt-dlp — works on YouTube, Vimeo, Twitter, Reddit, TikTok, and hundreds more |
 | 🔒 **100% Local & Private** | All downloads happen on your own machine — no external servers involved |
 | ⚡ **Auto-Setup Installer** | One-click `install_videoad.bat` downloads `yt-dlp` and `ffmpeg` automatically if missing |
+| 🛡 **Ad & Tracker Blocker** | Built-in blocker for video ads, banners, trackers, popup tabs, YouTube Music ads, and Instagram story ads |
 | 🔌 **Chrome Extension** | Companion extension for in-page detection, popup controls, and download triggering |
 
 ---
@@ -102,6 +103,17 @@ Once setup is complete, load the Chrome Extension:
 3. Click **"Load unpacked"**.
 4. Select the **`C:\VideoAd\chrome-extension`** directory (or the `chrome-extension/` folder inside your manual clone).
 5. The VideoAd icon will appear in your toolbar. Open it and verify the status shows **Connected**.
+
+---
+
+## 🛡 Ad & Tracker Blocker
+
+VideoAd includes a built-in, dynamic ad-blocking system inside the companion Chrome Extension:
+- **Automatic Ad Skipping:** Instantly skips video ads on YouTube and audio ads on YouTube Music (playback is muted and speed-boosted to 16x, automatically clicking the skip button).
+- **Instagram Ad Skippers:** Auto-skips sponsored Stories slides and hides sponsored posts from your home feed dynamically.
+- **Redirection & Popunder Blocker:** Intercepts and blocks programmatic popups and popunder ads (typical on movie/streaming sites) safely without violating Content Security Policy (CSP).
+- **Clean Interface:** Safely hides all visual display ads, companion ads, and sponsored banners without breaking main site navigation headers or video players.
+- **Easy Toggle:** Turn the ad blocker on or off at any time using the **Ad & Tracker Blocker** switch inside the extension settings panel.
 
 ---
 
