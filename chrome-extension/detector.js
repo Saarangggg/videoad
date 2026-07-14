@@ -211,17 +211,39 @@
   }
 
   const adSelectors = [
+    // General ad iframe networks
     'iframe[src*="doubleclick"]',
     'iframe[src*="googleads"]',
     'iframe[id^="google_ads"]',
+    'iframe[id^="google_ads_iframe"]',
     '.adsbygoogle',
-    'div[class*="ad-unit"]',
-    'div[id*="ad-unit"]',
-    'div[class*="sponsor"]',
-    'div[id*="sponsor"]',
-    'div[class*="advertisement"]',
-    'div[id*="advertisement"]',
-    'a[href*="googleadservices.com"]'
+    'a[href*="googleadservices.com"]',
+    // Class/ID attributes containing standard ad keywords (case-insensitive)
+    '[class*="sponsored" i]',
+    '[id*="sponsored" i]',
+    '[class*="ad-unit" i]',
+    '[id*="ad-unit" i]',
+    '[class*="ad-container" i]',
+    '[id*="ad-container" i]',
+    '[class*="advertisement" i]',
+    '[id*="advertisement" i]',
+    // YouTube Specific Promo/Ad Nodes
+    'ytd-ad-slot-renderer',
+    'ytd-companion-ad-renderer',
+    'ytd-promoted-sparkles-web-renderer',
+    'ytd-promoted-sparkles-text-search-renderer',
+    'ytd-display-ad-renderer',
+    'ytd-in-feed-ad-layout-renderer',
+    '.ytd-promoted-video-renderer',
+    '#player-ads',
+    '#masthead-ad',
+    '.style-scope.ytd-ad-slot-renderer',
+    // Popunder and Redirect Banners
+    'div[class*="popunder" i]',
+    'div[id*="popunder" i]',
+    'a[href*="onclickads.net"]',
+    'div[class*="ad-box" i]',
+    'div[id*="ad-box" i]'
   ];
 
   function removeDisplayAds() {
@@ -257,6 +279,35 @@
     });
   }
 
+  function injectPopupBlocker() {
+    if (document.getElementById('videoad-popup-blocker')) return;
+    const code = `
+      (function() {
+        const originalOpen = window.open;
+        window.open = function(url, name, specs, replace) {
+          const isAdPattern = url && (
+            url.includes('onclickads') || 
+            url.includes('popads') || 
+            url.includes('popcash') || 
+            url.includes('adsterra') ||
+            url.includes('exoclick') ||
+            url.includes('exdynsrv') ||
+            url.includes('propellerads')
+          );
+          if (isAdPattern) {
+            console.log("[VideoAd] Blocked ad popup: " + url);
+            return null;
+          }
+          return originalOpen.apply(this, arguments);
+        };
+      })();
+    `;
+    const script = document.createElement('script');
+    script.id = 'videoad-popup-blocker';
+    script.textContent = code;
+    (document.head || document.documentElement).appendChild(script);
+  }
+
   let adBlockInterval = null;
   let ytAdInterval = null;
 
@@ -268,15 +319,18 @@
       if (contextInvalid || !isContextValid()) return;
       const isAdBlockActive = result.adBlockActive !== false;
       if (isAdBlockActive) {
-        if (!adBlockInterval) adBlockInterval = setInterval(removeDisplayAds, 1500);
+        if (!adBlockInterval) adBlockInterval = setInterval(removeDisplayAds, 1000);
         if (!ytAdInterval && window.location.hostname.includes('youtube.com')) {
-          ytAdInterval = setInterval(skipYouTubeAds, 300);
+          ytAdInterval = setInterval(skipYouTubeAds, 200);
         }
         removeDisplayAds();
         if (window.location.hostname.includes('youtube.com')) skipYouTubeAds();
+        injectPopupBlocker();
       } else {
         if (adBlockInterval) { clearInterval(adBlockInterval); adBlockInterval = null; }
         if (ytAdInterval) { clearInterval(ytAdInterval); ytAdInterval = null; }
+        const blocker = document.getElementById('videoad-popup-blocker');
+        if (blocker) blocker.remove();
       }
     });
   }
