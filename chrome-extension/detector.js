@@ -297,8 +297,49 @@
     });
   }
 
+  function skipInstagramAds() {
+    if (!window.location.hostname.includes('instagram.com')) return;
+
+    // 1. Stories Ad Skip
+    const headers = Array.from(document.querySelectorAll('header, div[class*="header" i], div[class*="top-bar" i]'));
+    for (const header of headers) {
+      const divs = Array.from(header.querySelectorAll('div, span, a'));
+      const hasAdLabel = divs.some(el => {
+        const txt = el.textContent.trim();
+        return txt === 'Ad' || txt === 'Sponsored';
+      });
+
+      if (hasAdLabel) {
+        const nextButton = 
+          document.querySelector('button[aria-label="Next"]') || 
+          document.querySelector('button[class*="next" i]') || 
+          document.querySelector('div[class*="right-chevron" i]') ||
+          document.querySelector('.coreSpriteRightChevron');
+
+        if (nextButton) {
+          nextButton.click();
+          break;
+        }
+      }
+    }
+
+    // 2. Feed Ad Hider
+    const posts = document.querySelectorAll('article');
+    posts.forEach(post => {
+      const links = Array.from(post.querySelectorAll('a, span, div'));
+      const isSponsored = links.some(el => {
+        const txt = el.textContent.trim();
+        return txt === 'Sponsored' || txt === 'Ad';
+      });
+      if (isSponsored) {
+        post.style.display = 'none';
+      }
+    });
+  }
+
   let adBlockInterval = null;
   let ytAdInterval = null;
+  let instaAdInterval = null;
 
   function runAdBlocker() {
     if (contextInvalid) return;
@@ -308,7 +349,6 @@
       if (contextInvalid || !isContextValid()) return;
       const isAdBlockActive = result.adBlockActive !== false;
       
-      // Update DOM attribute to communicate state to MAIN world popup-blocker.js
       document.documentElement.setAttribute('data-videoad-adblock', isAdBlockActive ? 'true' : 'false');
 
       if (isAdBlockActive) {
@@ -316,11 +356,16 @@
         if (!ytAdInterval && window.location.hostname.includes('youtube.com')) {
           ytAdInterval = setInterval(skipYouTubeAds, 200);
         }
+        if (!instaAdInterval && window.location.hostname.includes('instagram.com')) {
+          instaAdInterval = setInterval(skipInstagramAds, 350);
+        }
         removeDisplayAds();
         if (window.location.hostname.includes('youtube.com')) skipYouTubeAds();
+        if (window.location.hostname.includes('instagram.com')) skipInstagramAds();
       } else {
         if (adBlockInterval) { clearInterval(adBlockInterval); adBlockInterval = null; }
         if (ytAdInterval) { clearInterval(ytAdInterval); ytAdInterval = null; }
+        if (instaAdInterval) { clearInterval(instaAdInterval); instaAdInterval = null; }
       }
     });
   }
