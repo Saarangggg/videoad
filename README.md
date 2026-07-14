@@ -19,9 +19,9 @@ Download videos, audio, and reels from YouTube, Instagram, and 1000+ supported s
 
 > [!IMPORTANT]
 > **🚀 One-Click Windows Installation:**
-> - **Method A (Easiest):** Open PowerShell and run this one-line command to download and start the installer immediately:
+> - **Method A (Easiest):** Open PowerShell (or Command Prompt) and run this one-line command to download and start the installer immediately:
 >   ```powershell
->   powershell -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Saarangggg/videoad/main/install_videoad.bat' -OutFile '%USERPROFILE%\Desktop\install_videoad.bat' -UseBasicParsing; Start-Process -FilePath '%USERPROFILE%\Desktop\install_videoad.bat' -Verb RunAs"
+>   powershell -ExecutionPolicy Bypass -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/Saarangggg/videoad/main/install_videoad.bat' -OutFile \"$env:USERPROFILE\Desktop\install_videoad.bat\" -UseBasicParsing; Start-Process -FilePath \"$env:USERPROFILE\Desktop\install_videoad.bat\" -Verb RunAs"
 >   ```
 > - **Method B:** **Right-click** [**this link (install_videoad.bat)**](https://raw.githubusercontent.com/Saarangggg/videoad/main/install_videoad.bat) and choose **"Save link as..."** or **"Save target as..."** to download it directly as a `.bat` file (do not left-click it directly, or Chrome will just show it as text). Double-click the saved file to run.
 
